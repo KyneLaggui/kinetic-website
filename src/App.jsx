@@ -7,6 +7,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Pages.StudentAssessment />} />
         <Route path="/admin" element={<Pages.Admin />} />
+        <Route path="/student-breakdown" element={<Pages.StudentBreakdown />} />
       </Routes>
     </>
   );
