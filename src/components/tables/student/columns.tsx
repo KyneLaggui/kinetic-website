@@ -1,6 +1,5 @@
 import { ArrowDown, ArrowUp, MoreHorizontalIcon } from "lucide-react";
 import { TableCell } from "@/components/tables/TableCell";
-import { Badge } from "@/components/ui/badge";
 import { useState } from "react";
 import {
   DropdownMenu,
@@ -10,6 +9,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 
 export const columns = [
   {
@@ -51,28 +52,23 @@ export const columns = [
   },
 
   {
-    accessorKey: "actions",
-    header: "Actions",
+    accessorKey: "viewMore",
+    header: () => (
+      <p className="flex items-center gap-1 cursor-pointer">View Breakdown</p>
+    ),
     cell: ({ row }) => {
-      const faq = row.original;
-      const [isOpen, setIsOpen] = useState(false);
-      const [isDialogOpen, setIsDialogOpen] = useState(false);
+      const navigate = useNavigate(); // Get navigation function
+
+      const handleClick = () => {
+        navigate(`/student/${row.original.studentId}`); // Redirect to student details page
+      };
 
       return (
-        <>
-          <DropdownMenu>
-            <DropdownMenuTrigger>
-              <MoreHorizontalIcon className="h-4 w-4" />
-            </DropdownMenuTrigger>
-            <DropdownMenuContent>
-              <DropdownMenuLabel>More Actions</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem className="cursor-pointer">
-                View Breakdown
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </>
+        <TableCell>
+          <Button onClick={handleClick} variant="outline">
+            View Breakdown
+          </Button>
+        </TableCell>
       );
     },
   },
