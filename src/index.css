@@ -68,4 +68,8 @@ body {
   body {
     @apply bg-background text-foreground;
   }
+
+  .container {
+    @apply px-5 pt-20 md:max-w-md mx-auto;
+  }
 }

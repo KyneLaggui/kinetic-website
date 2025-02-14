@@ -3,7 +3,7 @@ import StudentTable from "@/components/tables/student/StudentTable";
 
 const Admin = () => {
   return (
-    <div>
+    <div className="container">
       <StudentTable />
     </div>
   );
