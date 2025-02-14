@@ -1,15 +1,7 @@
 import { ArrowDown, ArrowUp, MoreHorizontalIcon } from "lucide-react";
 import { TableCell } from "@/components/tables/TableCell";
-import { useState } from "react";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { useNavigate } from "react-router-dom";
 
 export const columns = [
@@ -33,7 +25,11 @@ export const columns = [
     header: () => (
       <p className="flex items-center gap-1 cursor-pointer">Section</p>
     ),
-    cell: ({ row }) => <TableCell>{row.original.section}</TableCell>,
+    cell: ({ row }) => (
+      <TableCell>
+        <Badge>{row.original.section}</Badge>
+      </TableCell>
+    ),
   },
 
   {
