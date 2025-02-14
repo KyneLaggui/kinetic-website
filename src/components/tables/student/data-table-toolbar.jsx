@@ -5,23 +5,6 @@ import DataTableFacetedFilter from "@/components/tables/student/data-table-facet
 
 function DataTableToolbar({ table, allData }) {
   const isFiltered = table.getState().columnFilters.length > 0;
-  const rank = [
-    {
-      value: "Cadet",
-      label: "Cadet",
-      icon: Backpack,
-    },
-    {
-      value: "Junior",
-      label: "Junior",
-      icon: Presentation,
-    },
-    {
-      value: "Senior",
-      label: "Senior",
-      icon: Presentation,
-    },
-  ];
 
   return (
     <div className="flex flex-col items-start lg:flex-row lg:justify-between gap-2 w-full">
@@ -32,12 +15,6 @@ function DataTableToolbar({ table, allData }) {
           onChange={(event) => table.setGlobalFilter(event.target.value)}
           className="h-11"
         />
-
-        {/* <DataTableFacetedFilter
-          column={table.getColumn("rank")}
-          title="Rank"
-          options={rank}
-        /> */}
 
         <div className="flex items-center">
           {isFiltered && (
@@ -51,6 +28,8 @@ function DataTableToolbar({ table, allData }) {
             </Button>
           )}
         </div>
+
+        <Button>Export CSV</Button>
       </div>
     </div>
   );
