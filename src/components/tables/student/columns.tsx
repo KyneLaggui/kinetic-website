@@ -2,9 +2,34 @@ import { ArrowDown, ArrowUp, MoreHorizontalIcon } from "lucide-react";
 import { TableCell } from "@/components/tables/TableCell";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"; // Import Avatar from ShadCN
 import { useNavigate } from "react-router-dom";
 
 export const columns = [
+  {
+    accessorKey: "avatar",
+    header: () => (
+      <p className="flex items-center gap-1 cursor-pointer">Avatar</p>
+    ),
+    cell: ({ row }) => {
+      const { name, avatarUrl } = row.original;
+      const nameParts = name.split(" ");
+      const initials =
+        nameParts.length >= 2
+          ? `${nameParts[0][0]}${nameParts[nameParts.length - 1][0]}`
+          : nameParts[0][0];
+
+      return (
+        <TableCell>
+          <Avatar>
+            <AvatarImage src={avatarUrl} alt={name} />
+            <AvatarFallback>{initials.toUpperCase()}</AvatarFallback>
+          </Avatar>
+        </TableCell>
+      );
+    },
+  },
+
   {
     accessorKey: "name",
     header: () => (
@@ -20,6 +45,7 @@ export const columns = [
     ),
     cell: ({ row }) => <TableCell>{row.original.studentId}</TableCell>,
   },
+
   {
     accessorKey: "section",
     header: () => (
@@ -61,9 +87,7 @@ export const columns = [
 
       return (
         <TableCell>
-          <Button onClick={handleClick} variant="outline">
-            View Breakdown
-          </Button>
+          <Button onClick={handleClick}>View Breakdown</Button>
         </TableCell>
       );
     },
