@@ -141,10 +141,11 @@ export default function GamifiedAssessmentDashboard() {
                       <div className="text-2xl font-bold text-purple-600">
                         {assessment.score}%
                       </div>
+                      <div className="text-sm text-muted-foreground text-center">
+                        <Badge variant="outline">8/10</Badge>
+                      </div>
                     </div>
                   </div>
-
-                  {/* Achievements */}
                 </CardContent>
               </Card>
             </motion.div>
