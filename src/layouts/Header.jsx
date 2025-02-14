@@ -16,11 +16,9 @@ const Header = () => {
   return (
     <header className="bg-white shadow-md w-full">
       <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
-        <h1 className="text-3xl font-bold">
-          <span className="text-blue-500">Ki</span>
-          <span className="text-green-500">Net</span>
-          <span className="text-purple-500">Ic</span>
-        </h1>
+        <span className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 text-transparent bg-clip-text">
+          Ki<span className="text-pink-600">Net</span>Ic
+        </span>
         <Dialog>
           <DialogTrigger asChild>
             <Button>Login</Button>
