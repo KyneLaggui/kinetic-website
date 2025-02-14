@@ -1,10 +1,13 @@
-import StudentAssessment from "@/pages/StudentAssessment";
-import "./App.css";
+import Pages from "@/pages/pages";
+import { Route, Routes } from "react-router-dom";
 
 function App() {
   return (
     <>
-      <StudentAssessment></StudentAssessment>
+      <Routes>
+        <Route path="/" element={<Pages.StudentAssessment />} />
+        <Route path="/admin" element={<Pages.Admin />} />
+      </Routes>
     </>
   );
 }
