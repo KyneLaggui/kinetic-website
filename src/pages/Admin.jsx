@@ -1,7 +1,12 @@
 import React from "react";
+import StudentTable from "@/components/tables/student/StudentTable";
 
 const Admin = () => {
-  return <div>Hello</div>;
+  return (
+    <div>
+      <StudentTable />
+    </div>
+  );
 };
 
 export default Admin;
