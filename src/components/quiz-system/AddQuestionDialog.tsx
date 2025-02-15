@@ -7,6 +7,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  DialogFooter,
 } from "@/components/ui/dialog";
 
 export function AddQuestionDialog({ onAddQuestion }) {
@@ -75,7 +76,9 @@ export function AddQuestionDialog({ onAddQuestion }) {
               </div>
             ))}
           </div>
-          <Button onClick={handleAddChoice}>Add Choice</Button>
+        </div>
+        <Button onClick={handleAddChoice}>Add Choice</Button>
+        <DialogFooter>
           <Button
             onClick={handleSubmit}
             disabled={
@@ -86,7 +89,7 @@ export function AddQuestionDialog({ onAddQuestion }) {
           >
             Submit
           </Button>
-        </div>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );
