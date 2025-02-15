@@ -1,5 +1,13 @@
 import { useState } from "react";
-import { Pencil, Plus, Trash2, GripVertical, Check, X } from "lucide-react";
+import {
+  Pencil,
+  Plus,
+  Trash2,
+  GripVertical,
+  Check,
+  X,
+  Clock,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -80,6 +88,8 @@ export default function QuizDetail() {
     choice: Choice;
   } | null>(null);
   const [newChoiceText, setNewChoiceText] = useState("");
+  const [duration, setDuration] = useState(60); // Default duration in minutes
+  const [isEditingDuration, setIsEditingDuration] = useState(false);
 
   const [studentResponses, setStudentResponses] = useState<StudentResponse[]>([
     {
@@ -208,10 +218,47 @@ export default function QuizDetail() {
 
   const [openDrawer, setOpenDrawer] = useState<string | null>(null);
 
+  const handleUpdateDuration = (newDuration: number) => {
+    setDuration(newDuration);
+    setIsEditingDuration(false);
+  };
+
   return (
     <div className="container mx-auto py-6">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold mb-2">Mathematics Quiz 1</h1>
+        <div className="flex items-center justify-between">
+          <h1 className="text-2xl font-bold mb-2">Mathematics Quiz 1</h1>
+          <div className="flex items-center gap-2">
+            <Clock className="h-5 w-5 text-muted-foreground" />
+            {isEditingDuration ? (
+              <div className="flex items-center gap-2">
+                <Input
+                  type="number"
+                  value={duration}
+                  onChange={(e) => setDuration(Number(e.target.value))}
+                  className="w-20"
+                />
+                <Button
+                  size="sm"
+                  onClick={() => handleUpdateDuration(duration)}
+                >
+                  Save
+                </Button>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2">
+                <span>{duration} minutes</span>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setIsEditingDuration(true)}
+                >
+                  <Pencil className="h-4 w-4" />
+                </Button>
+              </div>
+            )}
+          </div>
+        </div>
         <p className="text-muted-foreground">
           Edit your quiz questions and view responses
         </p>
