@@ -71,6 +71,6 @@ body {
 
   .container {
     @apply px-5 md:max-w-md mx-auto;
-    padding-top: calc(5rem - 75px);
+    padding-top: calc(5rem - 20px);
   }
 }
