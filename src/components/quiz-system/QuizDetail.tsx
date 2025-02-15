@@ -91,6 +91,8 @@ export default function QuizDetail() {
   const [newChoiceText, setNewChoiceText] = useState("");
   const [duration, setDuration] = useState(60); // Default duration in minutes
   const [isEditingDuration, setIsEditingDuration] = useState(false);
+  const [title, setTitle] = useState("");
+  const [choices, setChoices] = useState(["", ""]);
 
   const [studentResponses, setStudentResponses] = useState<StudentResponse[]>([
     {
@@ -131,6 +133,33 @@ export default function QuizDetail() {
       ],
     };
     setQuestions([...questions, newQuestion]);
+  };
+
+  const handleDialogAddChoice = () => {
+    setChoices([...choices, ""]);
+  };
+
+  const handleRemoveChoice = (index) => {
+    if (choices.length > 2) {
+      setChoices(choices.filter((_, i) => i !== index));
+    }
+  };
+
+  const handleChoiceChange = (index, value) => {
+    const updatedChoices = [...choices];
+    updatedChoices[index] = value;
+    setChoices(updatedChoices);
+  };
+
+  const handleSubmit = () => {
+    if (
+      title.trim() &&
+      choices.every((choice) => choice.trim()) &&
+      choices.length >= 2
+    ) {
+      console.log("Submitting:", { title, choices });
+      // Handle submission logic here
+    }
   };
 
   const handleDeleteQuestion = (questionId: string) => {
@@ -273,10 +302,55 @@ export default function QuizDetail() {
 
         <TabsContent value="quiz" className="space-y-4">
           <div className="flex justify-end mb-4">
-            <Button onClick={handleAddQuestion}>
-              <Plus className="h-4 w-4 mr-2" />
-              Add Question
-            </Button>
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button>Add Question</Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Add a New Question</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4">
+                  <Input
+                    placeholder="Enter question title..."
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                  />
+                  <div className="space-y-2">
+                    {choices.map((choice, index) => (
+                      <div key={index} className="flex items-center space-x-2">
+                        <Input
+                          placeholder={`Choice ${index + 1}`}
+                          value={choice}
+                          onChange={(e) =>
+                            handleChoiceChange(index, e.target.value)
+                          }
+                        />
+                        {choices.length > 2 && (
+                          <Button
+                            variant="destructive"
+                            onClick={() => handleRemoveChoice(index)}
+                          >
+                            Remove
+                          </Button>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                  <Button onClick={handleDialogAddChoice}>Add Choice</Button>
+                  <Button
+                    onClick={handleSubmit}
+                    disabled={
+                      !title.trim() ||
+                      choices.length < 2 ||
+                      choices.some((c) => !c.trim())
+                    }
+                  >
+                    Submit
+                  </Button>
+                </div>
+              </DialogContent>
+            </Dialog>
           </div>
 
           {questions.map((question, qIndex) => (
