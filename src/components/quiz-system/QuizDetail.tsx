@@ -5,6 +5,15 @@ import { AddQuestionDialog } from "@/components/quiz-system/AddQuestionDialog";
 import { QuestionCard } from "@/components/quiz-system/QuestionCard";
 import { StudentResponseCard } from "@/components/quiz-system/StudentResponseCard";
 import { ResponseDrawer } from "@/components/quiz-system/ResponseDrawer";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
+import { ChevronRight } from "lucide-react";
 
 export default function QuizDetail() {
   const [questions, setQuestions] = useState<Question[]>([
@@ -72,7 +81,7 @@ export default function QuizDetail() {
       choices: newQuestionData.choices.map((choiceText, index) => ({
         id: `q${questions.length + 1}c${index + 1}`,
         text: choiceText,
-        isCorrect: index === 0, // First choice is correct by default
+        isCorrect: index === 0,
       })),
     };
     setQuestions([...questions, newQuestion]);
@@ -154,6 +163,22 @@ export default function QuizDetail() {
 
   return (
     <div className="container mx-auto py-6">
+      <Breadcrumb className="mb-4">
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/admin/quiz-system">
+              All Quizzes
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator>
+            <ChevronRight className="h-4 w-4" />
+          </BreadcrumbSeparator>
+          <BreadcrumbItem>
+            <BreadcrumbPage>Quiz Name</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
+
       <QuizHeader duration={duration} onDurationChange={setDuration} />
 
       <Tabs defaultValue="quiz" className="w-full">
