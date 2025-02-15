@@ -12,7 +12,7 @@ function App() {
           path="/student-assessment"
           element={<Pages.StudentAssessment />}
         />
-        <Route path="/admin" element={<Pages.Admin />} />
+        <Route path="/admin/scores" element={<Pages.Admin />} />
         <Route
           path="admin/student-breakdown"
           element={<Pages.StudentBreakdown />}
