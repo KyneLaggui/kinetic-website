@@ -4,28 +4,11 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import {
-  Trophy,
-  Flame,
-  Star,
-  Timer,
-  Target,
-  Search,
-  BookOpen,
-  CheckCircle,
-  Clock,
-  XCircle,
-  Award,
-} from "lucide-react";
+import { Trophy, Timer, Target, Search, Award } from "lucide-react";
 import { motion } from "framer-motion";
-import Header from "@/layouts/Header";
 
 export default function GamifiedAssessmentDashboard() {
   const studentId = "2021-12345-MN-0";
-  const currentLevel = 5;
-  const streak = 3;
-  const totalXP = 2750;
-  const nextLevelXP = 3000;
 
   const assessments = [
     {
@@ -47,7 +30,6 @@ export default function GamifiedAssessmentDashboard() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-indigo-100 to-purple-100">
-      <Header />
       <div className="max-w-4xl mx-auto p-6 space-y-8">
         {/* Search Bar */}
         <div className="relative">
