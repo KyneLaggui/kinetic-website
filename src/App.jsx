@@ -11,7 +11,12 @@ function App() {
           element={<Pages.StudentAssessment />}
         />
         <Route path="/admin" element={<Pages.Admin />} />
-        <Route path="/student-breakdown" element={<Pages.StudentBreakdown />} />
+        <Route
+          path="admin/student-breakdown"
+          element={<Pages.StudentBreakdown />}
+        />
+        <Route path="admin/quiz-system" element={<Pages.QuizSystem />} />
+        <Route path="admin/quiz-detail" element={<Pages.QuizDetail />} />
       </Routes>
     </>
   );
