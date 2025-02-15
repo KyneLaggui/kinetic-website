@@ -85,9 +85,6 @@ export default function LandingPage() {
               )}
             </CommandList>
           </Command>
-          <Button size="lg" className="mt-4 w-full">
-            Search
-          </Button>
         </div>
       </div>
     </div>
