@@ -21,6 +21,7 @@ import {
   DrawerTitle,
 } from "@/components/ui/drawer";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 // Mock data - replace with real data fetching
 const studentData = {
@@ -188,35 +189,37 @@ export default function StudentBreakdown() {
               %)
             </DrawerDescription>
           </DrawerHeader>
-          <div className="p-6">
-            <div className="space-y-6">
-              {getSelectedAssessment()?.questions.map((question, qIndex) => (
-                <div key={question.id} className="space-y-4">
-                  <h3 className="font-medium">
-                    {qIndex + 1}. {question.question}
-                  </h3>
-                  <div className="grid gap-2">
-                    {question.choices.map((choice, cIndex) => (
-                      <div
-                        key={cIndex}
-                        className={`p-4 rounded-lg border ${
-                          question.userAnswer === cIndex
-                            ? cIndex === question.correctAnswer
+          <ScrollArea className="h-[70vh]">
+            <div className="p-6">
+              <div className="space-y-6">
+                {getSelectedAssessment()?.questions.map((question, qIndex) => (
+                  <div key={question.id} className="space-y-4">
+                    <h3 className="font-medium">
+                      {qIndex + 1}. {question.question}
+                    </h3>
+                    <div className="grid gap-2">
+                      {question.choices.map((choice, cIndex) => (
+                        <div
+                          key={cIndex}
+                          className={`p-4 rounded-lg border ${
+                            question.userAnswer === cIndex
+                              ? cIndex === question.correctAnswer
+                                ? "bg-green-100 border-green-500"
+                                : "bg-red-100 border-red-500"
+                              : cIndex === question.correctAnswer
                               ? "bg-green-100 border-green-500"
-                              : "bg-red-100 border-red-500"
-                            : cIndex === question.correctAnswer
-                            ? "bg-green-100 border-green-500"
-                            : ""
-                        }`}
-                      >
-                        {choice}
-                      </div>
-                    ))}
+                              : ""
+                          }`}
+                        >
+                          {choice}
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
-          </div>
+          </ScrollArea>
           <DrawerFooter className="border-t">
             <DrawerClose asChild>
               <Button variant="outline">Close</Button>
