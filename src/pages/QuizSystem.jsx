@@ -20,17 +20,9 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Label } from "@/components/ui/label";
 
 export default function QuizSystem() {
-  const navigate = useNavigate(); // Hook for navigation
+  const navigate = useNavigate();
   const [quizzes, setQuizzes] = useState([
     {
       id: 1,
