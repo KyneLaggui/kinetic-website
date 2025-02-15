@@ -1,9 +1,8 @@
-"use client";
-
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { PlusCircle, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+
 import {
   Card,
   CardContent,
@@ -31,6 +30,7 @@ import {
 import { Label } from "@/components/ui/label";
 
 export default function QuizSystem() {
+  const navigate = useNavigate(); // Hook for navigation
   const [quizzes, setQuizzes] = useState([
     {
       id: 1,
@@ -55,37 +55,8 @@ export default function QuizSystem() {
     },
   ]);
 
-  const [newQuizTitle, setNewQuizTitle] = useState("");
-  const [newQuizSubject, setNewQuizSubject] = useState("");
-  const [newQuizDuration, setNewQuizDuration] = useState("");
-  const [usedSubjects, setUsedSubjects] = useState(new Set());
-
-  const subjects = [
-    "Mathematics",
-    "Physics",
-    "Chemistry",
-    "Biology",
-    "Computer Science",
-    "Literature",
-    "History",
-    "Geography",
-  ];
-
-  const handleCreateQuiz = () => {
-    if (newQuizTitle && newQuizSubject && newQuizDuration) {
-      const newQuiz = {
-        id: quizzes.length + 1,
-        title: newQuizTitle,
-        description: `${newQuizSubject} - ${newQuizDuration} minutes`,
-        responses: 0,
-        date: new Date().toISOString().split("T")[0],
-      };
-      setQuizzes([...quizzes, newQuiz]);
-      setUsedSubjects(new Set([...usedSubjects, newQuizSubject]));
-      setNewQuizTitle("");
-      setNewQuizSubject("");
-      setNewQuizDuration("");
-    }
+  const handleNavigate = (id) => {
+    navigate(`/admin/quiz-detail`);
   };
 
   return (
@@ -111,84 +82,30 @@ export default function QuizSystem() {
                 Fill in the details to create a new quiz.
               </DialogDescription>
             </DialogHeader>
-            <div className="grid gap-4 py-4">
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="title" className="text-right">
-                  Title
-                </Label>
-                <Input
-                  id="title"
-                  value={newQuizTitle}
-                  onChange={(e) => setNewQuizTitle(e.target.value)}
-                  className="col-span-3"
-                />
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="subject" className="text-right">
-                  Subject
-                </Label>
-                <Select
-                  value={newQuizSubject}
-                  onValueChange={setNewQuizSubject}
-                >
-                  <SelectTrigger className="col-span-3">
-                    <SelectValue placeholder="Select a subject" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {subjects.map((subject) => (
-                      <SelectItem
-                        key={subject}
-                        value={subject}
-                        disabled={usedSubjects.has(subject)}
-                      >
-                        {subject}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="duration" className="text-right">
-                  Duration (minutes)
-                </Label>
-                <Input
-                  id="duration"
-                  type="number"
-                  value={newQuizDuration}
-                  onChange={(e) => setNewQuizDuration(e.target.value)}
-                  className="col-span-3"
-                />
-              </div>
-            </div>
             <DialogFooter>
-              <Button onClick={handleCreateQuiz}>Create Quiz</Button>
+              <Button>Create Quiz</Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
       </div>
 
-      <div className="flex items-center gap-4 mb-6">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input placeholder="Search quizzes..." className="pl-10" />
-        </div>
-      </div>
-
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {quizzes.map((quiz) => (
-          <Card key={quiz.id} className="relative">
+          <Card
+            key={quiz.id}
+            className="cursor-pointer hover:shadow-lg transition"
+            onClick={() => handleNavigate()}
+          >
             <CardHeader>
               <CardTitle>{quiz.title}</CardTitle>
               <CardDescription>{quiz.description}</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Badge variant="secondary">{quiz.responses} Responses</Badge>
-                  <span className="text-sm text-muted-foreground">
-                    Created {new Date(quiz.date).toLocaleDateString()}
-                  </span>
-                </div>
+                <Badge variant="secondary">{quiz.responses} Responses</Badge>
+                <span className="text-sm text-muted-foreground">
+                  Created {new Date(quiz.date).toLocaleDateString()}
+                </span>
               </div>
             </CardContent>
           </Card>
