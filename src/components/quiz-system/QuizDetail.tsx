@@ -494,41 +494,70 @@ export default function QuizDetail() {
                 <ScrollArea className="h-[70vh]">
                   <div className="p-6">
                     <div className="space-y-6">
-                      {questions.map((question, index) => (
-                        <div key={question.id} className="space-y-4">
-                          <h3 className="font-medium">
-                            {index + 1}. {question.text}
-                          </h3>
-                          <div className="grid gap-2">
-                            {question.choices.map((choice) => {
-                              const isSelected = response.answers.some(
-                                (answer) =>
-                                  answer.questionId === question.id &&
-                                  answer.choiceId === choice.id
-                              );
-                              const isCorrect = choice.isCorrect;
-                              let bgColor = "bg-white";
-                              if (isSelected) {
-                                bgColor = isCorrect
-                                  ? "bg-green-100 border-green-500"
-                                  : "bg-red-100 border-red-500";
-                              } else if (isCorrect) {
-                                bgColor = "bg-green-100 border-green-500";
-                              }
-                              return (
-                                <div
-                                  key={choice.id}
-                                  className={`p-4 rounded-lg border ${bgColor}
-                        
-                                      `}
-                                >
-                                  {choice.text}
-                                </div>
-                              );
-                            })}
+                      {questions.map((question, index) => {
+                        // Find the user's selected answer for this question
+                        const userAnswer = response.answers.find(
+                          (answer) => answer.questionId === question.id
+                        );
+
+                        // Check if the user's selected answer is correct
+                        const isCorrect = userAnswer
+                          ? question.choices.find(
+                              (choice) => choice.id === userAnswer.choiceId
+                            )?.isCorrect
+                          : null; // Null if no answer selected
+
+                        return (
+                          <div key={question.id} className="space-y-4">
+                            {/* Question Number with Colored Circle */}
+                            <h3 className="font-medium flex items-center gap-2">
+                              <span
+                                className={`w-6 h-6 flex items-center justify-center rounded-full text-white ${
+                                  userAnswer
+                                    ? isCorrect
+                                      ? "bg-green-500"
+                                      : "bg-red-500"
+                                    : "bg-gray-500"
+                                }`}
+                              >
+                                {index + 1}
+                              </span>
+                              {question.text}
+                            </h3>
+
+                            {/* Answer Choices */}
+                            <div className="grid gap-2">
+                              {question.choices.map((choice) => {
+                                const isSelected = response.answers.some(
+                                  (answer) =>
+                                    answer.questionId === question.id &&
+                                    answer.choiceId === choice.id
+                                );
+                                const isCorrectChoice = choice.isCorrect;
+
+                                let bgColor = "bg-white"; // Default color
+
+                                if (isSelected) {
+                                  bgColor = isCorrectChoice
+                                    ? "bg-green-100 border-green-500"
+                                    : "bg-red-100 border-red-500";
+                                } else if (isCorrectChoice) {
+                                  bgColor = "bg-green-100 border-green-500";
+                                }
+
+                                return (
+                                  <div
+                                    key={choice.id}
+                                    className={`p-4 rounded-lg border ${bgColor}`}
+                                  >
+                                    {choice.text}
+                                  </div>
+                                );
+                              })}
+                            </div>
                           </div>
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   </div>
                 </ScrollArea>

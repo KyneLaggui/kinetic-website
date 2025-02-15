@@ -192,31 +192,56 @@ export default function StudentBreakdown() {
           <ScrollArea className="h-[70vh]">
             <div className="p-6">
               <div className="space-y-6">
-                {getSelectedAssessment()?.questions.map((question, qIndex) => (
-                  <div key={question.id} className="space-y-4">
-                    <h3 className="font-medium">
-                      {qIndex + 1}. {question.question}
-                    </h3>
-                    <div className="grid gap-2">
-                      {question.choices.map((choice, cIndex) => (
-                        <div
-                          key={cIndex}
-                          className={`p-4 rounded-lg border ${
-                            question.userAnswer === cIndex
-                              ? cIndex === question.correctAnswer
-                                ? "bg-green-100 border-green-500"
-                                : "bg-red-100 border-red-500"
-                              : cIndex === question.correctAnswer
-                              ? "bg-green-100 border-green-500"
-                              : ""
+                {getSelectedAssessment()?.questions.map((question, qIndex) => {
+                  const isCorrect =
+                    question.userAnswer === question.correctAnswer;
+
+                  return (
+                    <div key={question.id} className="space-y-4">
+                      {/* Question Number with Correct/Wrong Color */}
+                      <h3 className="font-medium flex items-center gap-2">
+                        <span
+                          className={`w-6 h-6 flex items-center justify-center rounded-full text-white ${
+                            question.userAnswer !== null
+                              ? isCorrect
+                                ? "bg-green-500"
+                                : "bg-red-500"
+                              : "bg-gray-500"
                           }`}
                         >
-                          {choice}
-                        </div>
-                      ))}
+                          {qIndex + 1}
+                        </span>
+                        {question.question}
+                      </h3>
+
+                      {/* Answer Choices */}
+                      <div className="grid gap-2">
+                        {question.choices.map((choice, cIndex) => {
+                          const isSelected = question.userAnswer === cIndex;
+                          const isCorrectChoice =
+                            cIndex === question.correctAnswer;
+
+                          return (
+                            <div
+                              key={cIndex}
+                              className={`p-4 rounded-lg border ${
+                                isSelected
+                                  ? isCorrect
+                                    ? "bg-green-100 border-green-500"
+                                    : "bg-red-100 border-red-500"
+                                  : isCorrectChoice
+                                  ? "bg-green-100 border-green-500"
+                                  : "border-gray-300"
+                              }`}
+                            >
+                              {choice}
+                            </div>
+                          );
+                        })}
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           </ScrollArea>
