@@ -20,12 +20,14 @@ import {
   DrawerHeader,
   DrawerTitle,
 } from "@/components/ui/drawer";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 // Mock data - replace with real data fetching
 const studentData = {
   id: "2023-58291-MN-0",
   name: "John Doe",
   section: "BSCPE 3-5",
+  avatarUrl: "", // Add actual avatar URL if available
   assessments: [
     {
       id: 1,
@@ -72,7 +74,7 @@ const studentData = {
   ],
 };
 
-export default function StudentDetailsPage() {
+export default function StudentBreakdown() {
   const [selectedAssessment, setSelectedAssessment] = useState<number | null>(
     null
   );
@@ -86,8 +88,13 @@ export default function StudentDetailsPage() {
     return ((score / total) * 100).toFixed(1);
   };
 
+  const getInitials = (name: string) => {
+    const [first, last] = name.split(" ");
+    return `${first?.charAt(0) || ""}${last?.charAt(0) || ""}`.toUpperCase();
+  };
+
   return (
-    <div className="container mx-auto p-6 space-y-6">
+    <div className="container p-6 space-y-6">
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
@@ -103,13 +110,22 @@ export default function StudentDetailsPage() {
       </Breadcrumb>
 
       <div className="space-y-6">
-        <div className="space-y-2">
-          <h1 className="text-4xl font-bold tracking-tight">
-            {studentData.id}
-          </h1>
-          <div className="flex items-center gap-4">
-            <h2 className="text-2xl">{studentData.name}</h2>
-            <Badge variant="secondary">{studentData.section}</Badge>
+        <div className="flex items-center gap-4">
+          <Avatar className="h-20 w-20">
+            <AvatarImage src={studentData.avatarUrl} alt={studentData.name} />
+            <AvatarFallback>{getInitials(studentData.name)}</AvatarFallback>
+          </Avatar>
+
+          <div className="space-y-2">
+            <h1 className="text-4xl font-bold tracking-tight">
+              {studentData.id}
+            </h1>
+            <div className="flex gap-4">
+              <h2 className="text-2xl">{studentData.name}</h2>
+              <Badge variant="outline" className="w-fit">
+                {studentData.section}
+              </Badge>
+            </div>
           </div>
         </div>
 
