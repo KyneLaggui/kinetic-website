@@ -82,7 +82,7 @@ export const columns = [
       const navigate = useNavigate(); // Get navigation function
 
       const handleClick = () => {
-        navigate(`/student/${row.original.studentId}`); // Redirect to student details page
+        navigate(`/admin/student-breakdown`); // Redirect to student details page
       };
 
       return (
