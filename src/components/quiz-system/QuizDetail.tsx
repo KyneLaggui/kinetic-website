@@ -31,6 +31,7 @@ import {
   DrawerHeader,
   DrawerTitle,
 } from "@/components/ui/drawer";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface Choice {
   id: string;
@@ -486,53 +487,51 @@ export default function QuizDetail() {
               onOpenChange={(open) => setOpenDrawer(open ? response.id : null)}
             >
               <DrawerContent>
-                <DrawerHeader>
+                <DrawerHeader className="border-b">
                   <DrawerTitle>{response.name}'s Answers</DrawerTitle>
                   <DrawerDescription>{response.studentId}</DrawerDescription>
                 </DrawerHeader>
-                <div className="px-4 py-2 space-y-6">
-                  {questions.map((question, index) => (
-                    <div key={question.id} className="space-y-2">
-                      <h3 className="font-medium">
-                        Question {index + 1}: {question.text}
-                      </h3>
-                      <div className="pl-4 space-y-1">
-                        {question.choices.map((choice) => {
-                          const isSelected = response.answers.some(
-                            (answer) =>
-                              answer.questionId === question.id &&
-                              answer.choiceId === choice.id
-                          );
-                          const isCorrect = choice.isCorrect;
-                          let bgColor = "bg-white";
-                          if (isSelected) {
-                            bgColor = isCorrect ? "bg-green-100" : "bg-red-100";
-                          } else if (isCorrect) {
-                            bgColor = "bg-green-100";
-                          }
-                          return (
-                            <div
-                              key={choice.id}
-                              className={`p-2 rounded ${bgColor} ${
-                                isSelected ? "border-2 border-blue-500" : ""
-                              }`}
-                            >
-                              {choice.text}
-                              {isCorrect && (
-                                <Badge className="ml-2">Correct</Badge>
-                              )}
-                              {isSelected && !isCorrect && (
-                                <Badge variant="destructive" className="ml-2">
-                                  Selected
-                                </Badge>
-                              )}
-                            </div>
-                          );
-                        })}
-                      </div>
+                <ScrollArea className="h-[70vh]">
+                  <div className="p-6">
+                    <div className="space-y-6">
+                      {questions.map((question, index) => (
+                        <div key={question.id} className="space-y-4">
+                          <h3 className="font-medium">
+                            {index + 1}. {question.text}
+                          </h3>
+                          <div className="grid gap-2">
+                            {question.choices.map((choice) => {
+                              const isSelected = response.answers.some(
+                                (answer) =>
+                                  answer.questionId === question.id &&
+                                  answer.choiceId === choice.id
+                              );
+                              const isCorrect = choice.isCorrect;
+                              let bgColor = "bg-white";
+                              if (isSelected) {
+                                bgColor = isCorrect
+                                  ? "bg-green-100 border-green-500"
+                                  : "bg-red-100 border-red-500";
+                              } else if (isCorrect) {
+                                bgColor = "bg-green-100 border-green-500";
+                              }
+                              return (
+                                <div
+                                  key={choice.id}
+                                  className={`p-4 rounded-lg border ${bgColor}
+                        
+                                      `}
+                                >
+                                  {choice.text}
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      ))}
                     </div>
-                  ))}
-                </div>
+                  </div>
+                </ScrollArea>
                 <DrawerFooter>
                   <DrawerClose asChild>
                     <Button variant="outline">Close</Button>
