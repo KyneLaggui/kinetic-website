@@ -1,5 +1,7 @@
+"use client";
+
 import { useState } from "react";
-import { Clock, Pencil } from "lucide-react";
+import { Clock, Pencil, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
@@ -13,9 +15,9 @@ export function QuizHeader({ duration, onDurationChange }) {
   };
 
   return (
-    <div className="mb-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold mb-2">Mathematics Quiz 1</h1>
+    <div className="mb-6 space-y-4">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <h1 className="text-2xl sm:text-3xl font-bold">Mathematics Quiz 1</h1>
         <div className="flex items-center gap-2">
           <Clock className="h-5 w-5 text-muted-foreground" />
           {isEditingDuration ? (
@@ -32,10 +34,17 @@ export function QuizHeader({ duration, onDurationChange }) {
               >
                 Save
               </Button>
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => setIsEditingDuration(false)}
+              >
+                <X className="h-4 w-4" />
+              </Button>
             </div>
           ) : (
             <div className="flex items-center gap-2">
-              <span>{duration} minutes</span>
+              <span className="text-sm sm:text-base">{duration} minutes</span>
               <Button
                 variant="ghost"
                 size="sm"
@@ -47,7 +56,7 @@ export function QuizHeader({ duration, onDurationChange }) {
           )}
         </div>
       </div>
-      <p className="text-muted-foreground">
+      <p className="text-sm sm:text-base text-muted-foreground">
         Edit your quiz questions and view responses
       </p>
     </div>
