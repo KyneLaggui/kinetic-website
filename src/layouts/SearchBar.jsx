@@ -33,7 +33,7 @@ const SearchBar = () => {
     : [];
 
   return (
-    <div className="relative max-w-2xl mx-auto mt-8 w-full">
+    <div className="relative  mx-auto mt-8 w-full">
       <Command className="w-full border rounded-lg shadow-md">
         <CommandInput
           value={search}
