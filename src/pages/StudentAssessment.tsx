@@ -3,8 +3,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
-import { Trophy, Timer, Target, Search, Award } from "lucide-react";
+import { Trophy, Timer, Target, Award } from "lucide-react";
 import { motion } from "framer-motion";
 import SearchBar from "@/layouts/SearchBar";
 
@@ -30,24 +29,26 @@ export default function GamifiedAssessmentDashboard() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-indigo-100 to-purple-100">
-      <div className="max-w-4xl mx-auto p-6 space-y-8">
+    <div className="min-h-screen bg-gradient-to-b from-indigo-100 to-purple-100 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-4xl mx-auto py-8 space-y-8">
         {/* Search Bar */}
         <SearchBar />
 
         {/* Student Profile */}
-        <div className="bg-white rounded-2xl p-6 shadow-lg">
-          <div className="flex items-center gap-6">
+        <div className="bg-white rounded-2xl p-4 sm:p-6 shadow-lg">
+          <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
             <div className="relative">
-              <Avatar className="h-24 w-24 border-4 border-purple-500 shadow-lg">
+              <Avatar className="h-20 w-20 sm:h-24 sm:w-24 border-4 border-purple-500 shadow-lg">
                 <AvatarFallback className="bg-gradient-to-br from-purple-500 to-blue-500 text-2xl text-white">
                   {studentId.split("-")[3]}
                 </AvatarFallback>
               </Avatar>
             </div>
-            <div className="flex-1">
-              <h1 className="text-2xl font-bold text-gray-800">{studentId}</h1>
-              <div className="flex gap-2 mt-2 items-center">
+            <div className="flex-1 text-center sm:text-left">
+              <h1 className="text-xl sm:text-2xl font-bold text-gray-800">
+                {studentId}
+              </h1>
+              <div className="flex justify-center sm:justify-start gap-2 mt-2 items-center">
                 <Badge
                   variant="outline"
                   className="text-orange-500 border-orange-500"
@@ -59,7 +60,7 @@ export default function GamifiedAssessmentDashboard() {
           </div>
 
           {/* Stats Cards */}
-          <div className="grid grid-cols-3 gap-4 mt-6">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6">
             <Card className="bg-gradient-to-br from-blue-50 to-purple-50 border-none">
               <CardContent className="p-4 text-center">
                 <Trophy className="w-6 h-6 text-yellow-500 mx-auto mb-2" />
@@ -97,10 +98,10 @@ export default function GamifiedAssessmentDashboard() {
               transition={{ duration: 0.3 }}
             >
               <Card className="bg-white hover:shadow-lg transition-shadow">
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between">
+                <CardContent className="p-4 sm:p-6">
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                     <div className="flex items-center gap-4">
-                      <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center font-bold text-white text-lg shadow-lg">
+                      <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center font-bold text-white text-lg shadow-lg shrink-0">
                         #{assessment.id}
                       </div>
                       <div>
@@ -113,11 +114,11 @@ export default function GamifiedAssessmentDashboard() {
                         </div>
                       </div>
                     </div>
-                    <div className="text-right">
+                    <div className="flex justify-between sm:flex-col items-center sm:text-right w-full sm:w-auto">
                       <div className="text-2xl font-bold text-purple-600">
                         8/10
                       </div>
-                      <div className="text-sm text-muted-foreground text-center">
+                      <div className="text-sm text-muted-foreground">
                         <Badge variant="outline">{assessment.score}%</Badge>
                       </div>
                     </div>
