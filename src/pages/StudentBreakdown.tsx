@@ -1,3 +1,5 @@
+"use client";
+
 import { useState } from "react";
 import { ChevronRight } from "lucide-react";
 import {
@@ -95,7 +97,7 @@ export default function StudentBreakdown() {
   };
 
   return (
-    <div className="container p-6 space-y-6">
+    <div className="container px-4 sm:px-6 py-6 space-y-6">
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
@@ -111,18 +113,18 @@ export default function StudentBreakdown() {
       </Breadcrumb>
 
       <div className="space-y-6">
-        <div className="flex items-center gap-4">
+        <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4">
           <Avatar className="h-20 w-20">
             <AvatarImage src={studentData.avatarUrl} alt={studentData.name} />
             <AvatarFallback>{getInitials(studentData.name)}</AvatarFallback>
           </Avatar>
 
-          <div className="space-y-2">
-            <h1 className="text-4xl font-bold tracking-tight">
+          <div className="space-y-2 text-center sm:text-left">
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
               {studentData.id}
             </h1>
-            <div className="flex gap-4">
-              <h2 className="text-2xl">{studentData.name}</h2>
+            <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 items-center sm:items-start">
+              <h2 className="text-xl sm:text-2xl">{studentData.name}</h2>
               <Badge variant="outline" className="w-fit">
                 {studentData.section}
               </Badge>
@@ -130,7 +132,7 @@ export default function StudentBreakdown() {
           </div>
         </div>
 
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {studentData.assessments.map((assessment) => (
             <Card
               key={assessment.id}
@@ -141,15 +143,17 @@ export default function StudentBreakdown() {
               }}
             >
               <CardHeader>
-                <CardTitle>{assessment.title}</CardTitle>
+                <CardTitle className="text-lg sm:text-xl">
+                  {assessment.title}
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-2">
                   <div className="flex items-end justify-between">
-                    <div className="text-2xl font-bold">
+                    <div className="text-xl sm:text-2xl font-bold">
                       {assessment.score}/{assessment.totalQuestions}
                     </div>
-                    <div className="text-lg text-muted-foreground">
+                    <div className="text-base sm:text-lg text-muted-foreground">
                       {calculatePercentage(
                         assessment.score,
                         assessment.totalQuestions
@@ -178,7 +182,9 @@ export default function StudentBreakdown() {
       <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
         <DrawerContent>
           <DrawerHeader className="border-b">
-            <DrawerTitle>{getSelectedAssessment()?.title} Results</DrawerTitle>
+            <DrawerTitle className="text-lg sm:text-xl">
+              {getSelectedAssessment()?.title} Results
+            </DrawerTitle>
             <DrawerDescription>
               Score: {getSelectedAssessment()?.score}/
               {getSelectedAssessment()?.totalQuestions} (
@@ -189,8 +195,8 @@ export default function StudentBreakdown() {
               %)
             </DrawerDescription>
           </DrawerHeader>
-          <ScrollArea className="h-[70vh]">
-            <div className="p-6">
+          <ScrollArea className="h-[60vh] sm:h-[70vh]">
+            <div className="p-4 sm:p-6">
               <div className="space-y-6">
                 {getSelectedAssessment()?.questions.map((question, qIndex) => {
                   const isCorrect =
@@ -198,10 +204,9 @@ export default function StudentBreakdown() {
 
                   return (
                     <div key={question.id} className="space-y-4">
-                      {/* Question Number with Correct/Wrong Color */}
-                      <h3 className="font-medium flex items-center gap-2">
+                      <h3 className="text-sm sm:text-base font-medium flex items-start sm:items-center gap-2">
                         <span
-                          className={`w-6 h-6 flex items-center justify-center rounded-full text-white ${
+                          className={`w-6 h-6 flex-shrink-0 flex items-center justify-center rounded-full text-white ${
                             question.userAnswer !== null
                               ? isCorrect
                                 ? "bg-green-500"
@@ -214,7 +219,6 @@ export default function StudentBreakdown() {
                         {question.question}
                       </h3>
 
-                      {/* Answer Choices */}
                       <div className="grid gap-2">
                         {question.choices.map((choice, cIndex) => {
                           const isSelected = question.userAnswer === cIndex;
@@ -224,7 +228,7 @@ export default function StudentBreakdown() {
                           return (
                             <div
                               key={cIndex}
-                              className={`p-4 rounded-lg border ${
+                              className={`p-3 sm:p-4 rounded-lg border text-sm sm:text-base ${
                                 isSelected
                                   ? isCorrect
                                     ? "bg-green-100 border-green-500"
