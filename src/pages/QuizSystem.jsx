@@ -53,7 +53,7 @@ export default function QuizSystem() {
 
   return (
     <div className="container mx-auto py-6">
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex flex-col sm:flex-row gap-4 items-center justify-between mb-8">
         <div className="space-y-1">
           <h2 className="text-2xl font-bold tracking-tight">Quizzes</h2>
           <p className="text-muted-foreground">
@@ -62,7 +62,7 @@ export default function QuizSystem() {
         </div>
         <Dialog>
           <DialogTrigger asChild>
-            <Button className="gap-2">
+            <Button className="w-full sm:w-fit">
               <PlusCircle className="h-4 w-4" />
               Create Quiz
             </Button>
