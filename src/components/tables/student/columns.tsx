@@ -1,4 +1,9 @@
-import { ArrowDown, ArrowUp, MoreHorizontalIcon } from "lucide-react";
+import {
+  ArrowDown,
+  ArrowUp,
+  ChevronRight,
+  MoreHorizontalIcon,
+} from "lucide-react";
 import { TableCell } from "@/components/tables/TableCell";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -43,7 +48,9 @@ export const columns = [
     header: () => (
       <p className="flex items-center gap-1 cursor-pointer">Student ID</p>
     ),
-    cell: ({ row }) => <TableCell>{row.original.studentId}</TableCell>,
+    cell: ({ row }) => (
+      <TableCell className="text-nowrap">{row.original.studentId}</TableCell>
+    ),
   },
 
   {
@@ -53,7 +60,7 @@ export const columns = [
     ),
     cell: ({ row }) => (
       <TableCell>
-        <Badge>{row.original.section}</Badge>
+        <Badge className="text-nowrap">{row.original.section}</Badge>
       </TableCell>
     ),
   },
@@ -87,7 +94,9 @@ export const columns = [
 
       return (
         <TableCell>
-          <Button onClick={handleClick}>View Breakdown</Button>
+          <Button onClick={handleClick}>
+            View Breakdown <ChevronRight />
+          </Button>
         </TableCell>
       );
     },
