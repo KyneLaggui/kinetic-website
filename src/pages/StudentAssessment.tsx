@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Trophy, Timer, Target, Search, Award } from "lucide-react";
 import { motion } from "framer-motion";
+import SearchBar from "@/layouts/SearchBar";
 
 export default function GamifiedAssessmentDashboard() {
   const studentId = "2021-12345-MN-0";
@@ -32,14 +33,7 @@ export default function GamifiedAssessmentDashboard() {
     <div className="min-h-screen bg-gradient-to-b from-indigo-100 to-purple-100">
       <div className="max-w-4xl mx-auto p-6 space-y-8">
         {/* Search Bar */}
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-          <Input
-            type="search"
-            placeholder="Search Players..."
-            className="pl-10 bg-white/80 backdrop-blur-sm"
-          />
-        </div>
+        <SearchBar />
 
         {/* Student Profile */}
         <div className="bg-white rounded-2xl p-6 shadow-lg">
@@ -121,10 +115,10 @@ export default function GamifiedAssessmentDashboard() {
                     </div>
                     <div className="text-right">
                       <div className="text-2xl font-bold text-purple-600">
-                        {assessment.score}%
+                        8/10
                       </div>
                       <div className="text-sm text-muted-foreground text-center">
-                        <Badge variant="outline">8/10</Badge>
+                        <Badge variant="outline">{assessment.score}%</Badge>
                       </div>
                     </div>
                   </div>
