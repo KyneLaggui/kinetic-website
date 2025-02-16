@@ -35,7 +35,7 @@ export function QuestionCard({
           </div>
         </div>
 
-        <div className="pl-7">
+        <div className="pl-1">
           <p className="mb-4">{question.text}</p>
           <div className="space-y-2">
             {question.choices.map((choice) => (
