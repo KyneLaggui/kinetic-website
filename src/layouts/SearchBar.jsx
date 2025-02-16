@@ -33,7 +33,7 @@ const SearchBar = () => {
     : [];
 
   return (
-    <div className="relative  mx-auto mt-8 w-full">
+    <div className="relative mx-auto mt-8 w-full">
       <Command className="w-full border rounded-lg shadow-md">
         <CommandInput
           value={search}
@@ -41,7 +41,7 @@ const SearchBar = () => {
           placeholder="Search for Student ID..."
           className="h-12 px-4"
         />
-        <CommandList>
+        <CommandList className="absolute left-0 w-full bg-white shadow-lg border rounded-lg mt-12 z-50 max-h-60 overflow-auto">
           {search.trim() ? (
             filteredIds.length > 0 ? (
               filteredIds.map((id) => (
