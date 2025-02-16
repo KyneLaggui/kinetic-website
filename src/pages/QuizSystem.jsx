@@ -20,13 +20,22 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export default function QuizSystem() {
   const navigate = useNavigate();
   const [quizzes, setQuizzes] = useState([
     {
       id: 1,
-      title: "Mathematics Quiz 1",
+      title: "Assesssment 1",
       description: "Basic Algebra and Arithmetic",
       responses: 24,
       date: "2024-02-15",
@@ -49,6 +58,36 @@ export default function QuizSystem() {
 
   const handleNavigate = (id) => {
     navigate(`/admin/quiz-detail`);
+  };
+
+  const [newQuizTitle, setNewQuizTitle] = useState("");
+  const [newQuizDescription, setNewQuizDescription] = useState("");
+  const [newQuizDuration, setNewQuizDuration] = useState("");
+  const [newQuizAssessment, setNewQuizAssessment] = useState("");
+  const [usedAssessments, setUsedAssessments] = useState(new Set());
+  const assessments = ["Assessment 1", "Assessment 2", "Assessment 3"];
+
+  const handleCreateQuiz = () => {
+    if (
+      newQuizTitle &&
+      newQuizDescription &&
+      newQuizAssessment &&
+      newQuizDuration
+    ) {
+      const newQuiz = {
+        id: quizzes.length + 1,
+        title: newQuizTitle,
+        description: `${newQuizDescription} - ${newQuizAssessment} - ${newQuizDuration} minutes`,
+        responses: 0,
+        date: new Date().toISOString().split("T")[0],
+      };
+      setQuizzes([...quizzes, newQuiz]);
+      setUsedAssessments(new Set([...usedAssessments, newQuizAssessment]));
+      setNewQuizTitle("");
+      setNewQuizDescription("");
+      setNewQuizAssessment("");
+      setNewQuizDuration("");
+    }
   };
 
   return (
@@ -74,8 +113,62 @@ export default function QuizSystem() {
                 Fill in the details to create a new quiz.
               </DialogDescription>
             </DialogHeader>
+            <div className="grid gap-4 py-4">
+              <div className="flex flex-col gap-3">
+                <Label htmlFor="title">Title</Label>
+                <Input
+                  id="title"
+                  value={newQuizTitle}
+                  onChange={(e) => setNewQuizTitle(e.target.value)}
+                  className="col-span-3"
+                />
+              </div>
+              <div className="flex flex-col gap-3">
+                <Label htmlFor="description">Description</Label>
+                <Input
+                  id="description"
+                  value={newQuizDescription}
+                  onChange={(e) => setNewQuizDescription(e.target.value)}
+                  className="col-span-3"
+                />
+              </div>
+
+              <div className="flex flex-col gap-3">
+                <Label htmlFor="assessment">Assessment</Label>
+                <Select
+                  value={newQuizAssessment}
+                  onValueChange={setNewQuizAssessment}
+                >
+                  <SelectTrigger className="col-span-3">
+                    <SelectValue placeholder="Select an Assessment" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {assessments.map((assessment) => (
+                      <SelectItem
+                        key={assessment}
+                        value={assessment}
+                        disabled={usedAssessments.has(assessment)}
+                      >
+                        {assessment}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="flex flex-col gap-3">
+                <Label htmlFor="duration">Duration (minutes)</Label>
+                <Input
+                  id="duration"
+                  type="number"
+                  value={newQuizDuration}
+                  onChange={(e) => setNewQuizDuration(e.target.value)}
+                  className="col-span-3"
+                />
+              </div>
+            </div>
             <DialogFooter>
-              <Button>Create Quiz</Button>
+              <Button onClick={handleCreateQuiz}>Create Quiz</Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
@@ -95,9 +188,6 @@ export default function QuizSystem() {
             <CardContent>
               <div className="flex items-center justify-between">
                 <Badge variant="secondary">{quiz.responses} Responses</Badge>
-                <span className="text-sm text-muted-foreground">
-                  Created {new Date(quiz.date).toLocaleDateString()}
-                </span>
               </div>
             </CardContent>
           </Card>
