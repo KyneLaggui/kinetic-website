@@ -1,5 +1,3 @@
-"use client";
-
 import { useState } from "react";
 import { Clock, Pencil, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -57,7 +55,7 @@ export function QuizHeader({ duration, onDurationChange }) {
         </div>
       </div>
       <p className="text-sm sm:text-base text-muted-foreground">
-        Edit your quiz questions and view responses
+        Description here
       </p>
     </div>
   );
