@@ -35,24 +35,21 @@ export default function QuizSystem() {
   const [quizzes, setQuizzes] = useState([
     {
       id: 1,
-      title: "Assesssment 1",
-      description: "Basic Algebra and Arithmetic",
+      title: "The Network Quest – Unveiling the Hidden World of Communication",
+      description: "Assessment 1 ",
       responses: 24,
-      date: "2024-02-15",
     },
     {
       id: 2,
-      title: "Physics Assessment",
-      description: "Mechanics and Motion",
+      title: "The Network Engineer's Toolkit – Gearing Up for the Adventure",
+      description: "Assessment 2",
       responses: 18,
-      date: "2024-02-14",
     },
     {
       id: 3,
-      title: "Programming Fundamentals",
-      description: "Introduction to Python",
-      responses: 32,
-      date: "2024-02-13",
+      title: "The Terminal Challenge – Command the Network with Your Skills",
+      description: "Assessment 3",
+      responses: 0,
     },
   ]);
 
@@ -177,7 +174,13 @@ export default function QuizSystem() {
             </CardHeader>
             <CardContent>
               <div className="flex items-center justify-between">
-                <Badge variant="secondary">{quiz.responses} Responses</Badge>
+                <Badge variant="secondary">
+                  <Badge variant="secondary">
+                    {quiz.responses
+                      ? `${quiz.responses} Responses`
+                      : "No responses"}
+                  </Badge>
+                </Badge>
               </div>
             </CardContent>
           </Card>
