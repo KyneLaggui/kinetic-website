@@ -77,7 +77,6 @@ export default function QuizSystem() {
       const newQuiz = {
         id: quizzes.length + 1,
         title: newQuizTitle,
-        description: `${newQuizDescription} - ${newQuizAssessment} - ${newQuizDuration} minutes`,
         responses: 0,
         date: new Date().toISOString().split("T")[0],
       };
@@ -120,15 +119,6 @@ export default function QuizSystem() {
                   id="title"
                   value={newQuizTitle}
                   onChange={(e) => setNewQuizTitle(e.target.value)}
-                  className="col-span-3"
-                />
-              </div>
-              <div className="flex flex-col gap-3">
-                <Label htmlFor="description">Description</Label>
-                <Input
-                  id="description"
-                  value={newQuizDescription}
-                  onChange={(e) => setNewQuizDescription(e.target.value)}
                   className="col-span-3"
                 />
               </div>
