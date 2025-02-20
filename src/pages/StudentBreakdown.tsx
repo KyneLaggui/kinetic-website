@@ -101,7 +101,7 @@ export default function StudentBreakdown() {
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
-            <BreadcrumbLink href="/admin">All Students</BreadcrumbLink>
+            <BreadcrumbLink href="/admin/scores">All Students</BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator>
             <ChevronRight className="h-4 w-4" />
