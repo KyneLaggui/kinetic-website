@@ -1,5 +1,3 @@
-"use client";
-
 import { useState } from "react";
 import { ChevronRight } from "lucide-react";
 import {
@@ -123,7 +121,7 @@ export default function StudentBreakdown() {
             <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
               {studentData.id}
             </h1>
-            <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 items-center sm:items-start">
+            <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 items-center ">
               <h2 className="text-xl sm:text-2xl">{studentData.name}</h2>
               <Badge variant="outline" className="w-fit">
                 {studentData.section}
