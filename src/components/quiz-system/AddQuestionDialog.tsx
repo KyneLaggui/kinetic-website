@@ -12,10 +12,13 @@ import {
 
 export function AddQuestionDialog({ onAddQuestion }) {
   const [title, setTitle] = useState("");
-  const [choices, setChoices] = useState(["", ""]);
+  const [choices, setChoices] = useState([
+    { choice: "", isAnswer: true },
+    { choice: "", isAnswer: false }
+  ]);
 
   const handleAddChoice = () => {
-    setChoices([...choices, ""]);
+    setChoices([...choices, { choice: "", isAnswer: false }]);
   };
 
   const handleRemoveChoice = (index: number) => {
@@ -26,19 +29,23 @@ export function AddQuestionDialog({ onAddQuestion }) {
 
   const handleChoiceChange = (index: number, value: string) => {
     const updatedChoices = [...choices];
-    updatedChoices[index] = value;
+    updatedChoices[index].choice = value;
     setChoices(updatedChoices);
+  };
+
+  const handleCorrectAnswerChange = (index: number) => {
+    setChoices(choices.map((choice, i) => ({ ...choice, isAnswer: i === index })));
   };
 
   const handleSubmit = () => {
     if (
       title.trim() &&
-      choices.every((choice) => choice.trim()) &&
+      choices.every((c) => c.choice.trim()) &&
       choices.length >= 2
     ) {
       onAddQuestion({ title, choices });
       setTitle("");
-      setChoices(["", ""]);
+      setChoices([{ choice: "", isAnswer: true }, { choice: "", isAnswer: false }]);
     }
   };
 
@@ -60,9 +67,15 @@ export function AddQuestionDialog({ onAddQuestion }) {
           <div className="space-y-2">
             {choices.map((choice, index) => (
               <div key={index} className="flex items-center space-x-2">
+                <input
+                  type="radio"
+                  name="correctAnswer"
+                  checked={choice.isAnswer}
+                  onChange={() => handleCorrectAnswerChange(index)}
+                />
                 <Input
                   placeholder={`Choice ${index + 1}`}
-                  value={choice}
+                  value={choice.choice}
                   onChange={(e) => handleChoiceChange(index, e.target.value)}
                 />
                 {choices.length > 2 && (
@@ -84,7 +97,7 @@ export function AddQuestionDialog({ onAddQuestion }) {
             disabled={
               !title.trim() ||
               choices.length < 2 ||
-              choices.some((c) => !c.trim())
+              choices.some((c) => !c.choice.trim())
             }
           >
             Submit
@@ -94,3 +107,4 @@ export function AddQuestionDialog({ onAddQuestion }) {
     </Dialog>
   );
 }
+
