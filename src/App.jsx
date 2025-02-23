@@ -18,7 +18,7 @@ function App() {
           element={<Pages.StudentBreakdown />}
         />
         <Route path="admin/quiz-system" element={<Pages.QuizSystem />} />
-        <Route path="admin/quiz-detail" element={<Pages.QuizDetail />} />
+        <Route path="admin/quiz-detail/:quizId" element={<Pages.QuizDetail />} />
       </Routes>
     </>
   );
