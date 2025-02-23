@@ -24,7 +24,7 @@ import {
 } from "@/components/ui/alert-dialog"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Menu, X } from "lucide-react";
-import { useAuth } from "../supabase/custom-hooks/useAuth";
+import { useAuth } from "../supabase/custom-hooks/useAuth.tsx";
 import { loginSchema } from "@/lib/validation";
 
 const navItems = [
