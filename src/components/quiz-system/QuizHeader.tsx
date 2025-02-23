@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Clock, Pencil, X, Trash2, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,44 +14,62 @@ import { DynamicAlertDialog } from "@/components/DynamicAlertDialog";
 
 interface QuizHeaderProps {
   duration: number;
+  quizId: number;
+  quiz: 
   onDurationChange: (newDuration: number) => void;
+  onUpdateQuiz: (id: number, updates: {}) => void;
   onDeleteQuiz: () => void;
 }
 
 const DESCRIPTION_OPTIONS = [
-  { value: "assessment1", label: "Assessment 1" },
-  { value: "assessment2", label: "Assessment 2" },
-  { value: "assessment3", label: "Assessment 3" },
+  { value: "Assessment 1", label: "Assessment 1" },
+  { value: "Assessment 2", label: "Assessment 2" },
+  { value: "Assessment 3", label: "Assessment 3" },
 ];
 
 export function QuizHeader({
-  duration,
-  onDurationChange,
+  quizId,
+  quiz,
+  onUpdateQuiz,
   onDeleteQuiz,
 }: QuizHeaderProps) {
   const [isEditingDuration, setIsEditingDuration] = useState(false);
   const [isEditingTitle, setIsEditingTitle] = useState(false);
-  const [isEditingDescription, setIsEditingDescription] = useState(false);
-  const [localDuration, setLocalDuration] = useState(duration);
-  const [localTitle, setLocalTitle] = useState("Untitled Quiz");
-  const [localDescription, setLocalDescription] = useState(
-    DESCRIPTION_OPTIONS[0].value
+  const [isEditingAssessment, setIsEditingAssessment] = useState(false);
+  const [localDuration, setLocalDuration] = useState(quiz.duration);
+  const [localTitle, setLocalTitle] = useState(quiz.title);
+  const [localAssessment, setLocalAssessment] = useState(
+    quiz.assessment
   );
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-
-  const handleUpdateDuration = (newDuration: number) => {
-    onDurationChange(newDuration);
-    setIsEditingDuration(false);
+  
+  const handleUpdateDuration = async(newDuration: number) => {
+    try {
+      await onUpdateQuiz(quizId, { duration: newDuration });
+      setIsEditingDuration(false);
+    } catch (error) {
+      console.error("Failed to update duration", error);
+    }
   };
 
-  const handleUpdateTitle = () => {
-    setIsEditingTitle(false);
+  const handleUpdateTitle = async() => {
+    try {
+      await onUpdateQuiz(quizId, { title: localTitle }); // Assuming an API call function
+      setIsEditingTitle(false);
+    } catch (error) {
+      console.error("Failed to update title", error);
+    }
   };
-
-  const handleUpdateDescription = () => {
-    setIsEditingDescription(false);
+  
+  const handleUpdateDescription = async () => {
+    try {
+      await onUpdateQuiz(quizId, { assessment: localAssessment });
+      setIsEditingAssessment(false);
+    } catch (error) {
+      console.error("Failed to update description", error);
+    }
   };
-
+  
   return (
     <Card className="w-full mb-4">
       <CardContent className="p-4 sm:p-6">
@@ -97,11 +115,11 @@ export function QuizHeader({
 
             {/* Description Section */}
             <div>
-              {isEditingDescription ? (
+              {isEditingAssessment ? (
                 <div className="flex items-center gap-2">
                   <Select
-                    value={localDescription}
-                    onValueChange={setLocalDescription}
+                    value={localAssessment}
+                    onValueChange={setLocalAssessment}
                   >
                     <SelectTrigger className="w-full sm:w-[450px]">
                       <SelectValue placeholder="Select quiz type" />
@@ -127,14 +145,14 @@ export function QuizHeader({
                   <span className="text-sm sm:text-base">
                     {
                       DESCRIPTION_OPTIONS.find(
-                        (option) => option.value === localDescription
+                        (option) => option.value === localAssessment
                       )?.label
                     }
                   </span>
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() => setIsEditingDescription(true)}
+                    onClick={() => setIsEditingAssessment(true)}
                   >
                     <Pencil className="h-4 w-4" />
                   </Button>
@@ -174,7 +192,7 @@ export function QuizHeader({
               ) : (
                 <div className="flex items-center gap-2">
                   <span className="text-sm sm:text-base">
-                    {duration} minutes
+                    {quiz.duration} minutes
                   </span>
                   <Button
                     variant="ghost"
