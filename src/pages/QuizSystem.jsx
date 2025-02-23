@@ -29,60 +29,65 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { quizSchema } from "@/lib/validation";
+import useQuiz from "../supabase/custom-hooks/useQuiz";
 
 export default function QuizSystem() {
   const navigate = useNavigate();
-  const [quizzes, setQuizzes] = useState([
-    {
-      id: 1,
-      title: "The Network Quest – Unveiling the Hidden World of Communication",
-      description: "Assessment 1 ",
-      responses: 24,
-    },
-    {
-      id: 2,
-      title: "The Network Engineer's Toolkit – Gearing Up for the Adventure",
-      description: "Assessment 2",
-      responses: 18,
-    },
-    {
-      id: 3,
-      title: "The Terminal Challenge – Command the Network with Your Skills",
-      description: "Assessment 3",
-      responses: 0,
-    },
-  ]);
+  // const [quizzes, setQuizzes] = useState([
+  //   {
+  //     id: 1,
+  //     title: "The Network Quest – Unveiling the Hidden World of Communication",
+  //     description: "Assessment 1 ",
+  //     responses: 24,
+  //   },
+  //   {
+  //     id: 2,
+  //     title: "The Network Engineer's Toolkit – Gearing Up for the Adventure",
+  //     description: "Assessment 2",
+  //     responses: 18,
+  //   },
+  //   {
+  //     id: 3,
+  //     title: "The Terminal Challenge – Command the Network with Your Skills",
+  //     description: "Assessment 3",
+  //     responses: 0,
+  //   },
+  // ]);
+  const { quizzes, createQuiz } = useQuiz();
 
   const handleNavigate = (id) => {
-    navigate(`/admin/quiz-detail`);
+    navigate(`/admin/quiz-detail/${id}`);
   };
 
   const [newQuizTitle, setNewQuizTitle] = useState("");
-  const [newQuizDescription, setNewQuizDescription] = useState("");
   const [newQuizDuration, setNewQuizDuration] = useState("");
   const [newQuizAssessment, setNewQuizAssessment] = useState("");
   const [usedAssessments, setUsedAssessments] = useState(new Set());
   const assessments = ["Assessment 1", "Assessment 2", "Assessment 3"];
 
-  const handleCreateQuiz = () => {
-    if (
-      newQuizTitle &&
-      newQuizDescription &&
-      newQuizAssessment &&
-      newQuizDuration
-    ) {
-      const newQuiz = {
-        id: quizzes.length + 1,
-        title: newQuizTitle,
-        responses: 0,
-        date: new Date().toISOString().split("T")[0],
-      };
-      setQuizzes([...quizzes, newQuiz]);
-      setUsedAssessments(new Set([...usedAssessments, newQuizAssessment]));
-      setNewQuizTitle("");
-      setNewQuizDescription("");
-      setNewQuizAssessment("");
-      setNewQuizDuration("");
+  const handleCreateQuiz = async() => {    
+    const validationResult = quizSchema.safeParse({
+      title: newQuizTitle,
+      assessment: newQuizAssessment,
+      duration: newQuizDuration,
+    });
+    console.log(newQuizDuration)
+
+
+    if (validationResult.success) {
+      const result = await createQuiz(newQuizTitle, newQuizAssessment, newQuizDuration);
+
+      console.log(result);
+      if (result) {
+        console.log('Quiz created successfully!');
+        setUsedAssessments(new Set([...usedAssessments, newQuizAssessment]));
+        setNewQuizTitle("");
+        setNewQuizAssessment("");
+        setNewQuizDuration("");
+      }     
+    } else {
+      console.log(validationResult.error.errors);
     }
   };
 
@@ -166,11 +171,11 @@ export default function QuizSystem() {
           <Card
             key={quiz.id}
             className="cursor-pointer hover:shadow-lg transition"
-            onClick={() => handleNavigate()}
+            onClick={() => handleNavigate(quiz.id)}
           >
             <CardHeader>
               <CardTitle>{quiz.title}</CardTitle>
-              <CardDescription>{quiz.description}</CardDescription>
+              <CardDescription>{quiz.assessment}</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="flex items-center justify-between">
