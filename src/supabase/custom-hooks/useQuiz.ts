@@ -1,17 +1,21 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../config';
 
-const useQuiz = (id) => {
+const useQuiz = (id=null) => {
   const [quizzes, setQuizzes] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
   // Fetch all quizzes
-  const fetchQuizzes = async (id) => {
+  const fetchQuizzes = async (id?: string) => {
     setLoading(true);
     setError(null);
     try {
-      const { data, error } = await supabase.from('quiz').select('*').eq('id', id);
+      let query = supabase.from('quiz').select('*');
+      if (id) {
+        query = query.eq('id', id);
+      }
+      const { data, error } = await query;
       if (error) throw error;
       setQuizzes(data);
     } catch (err) {
@@ -82,8 +86,10 @@ const useQuiz = (id) => {
     try {
       const { error } = await supabase.from('quiz').delete().eq('id', id);
       if (error) throw error;
+      return true;
     } catch (err) {
       setError(err.message);
+      return false;
     }
   };
 

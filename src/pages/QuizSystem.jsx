@@ -1,8 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { PlusCircle, Search } from "lucide-react";
+import { PlusCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
-
 import {
   Card,
   CardContent,
@@ -34,26 +33,6 @@ import useQuiz from "../supabase/custom-hooks/useQuiz";
 
 export default function QuizSystem() {
   const navigate = useNavigate();
-  // const [quizzes, setQuizzes] = useState([
-  //   {
-  //     id: 1,
-  //     title: "The Network Quest – Unveiling the Hidden World of Communication",
-  //     description: "Assessment 1 ",
-  //     responses: 24,
-  //   },
-  //   {
-  //     id: 2,
-  //     title: "The Network Engineer's Toolkit – Gearing Up for the Adventure",
-  //     description: "Assessment 2",
-  //     responses: 18,
-  //   },
-  //   {
-  //     id: 3,
-  //     title: "The Terminal Challenge – Command the Network with Your Skills",
-  //     description: "Assessment 3",
-  //     responses: 0,
-  //   },
-  // ]);
   const { quizzes, createQuiz } = useQuiz();
 
   const handleNavigate = (id) => {
@@ -72,13 +51,10 @@ export default function QuizSystem() {
       assessment: newQuizAssessment,
       duration: newQuizDuration,
     });
-    console.log(newQuizDuration)
-
 
     if (validationResult.success) {
       const result = await createQuiz(newQuizTitle, newQuizAssessment, newQuizDuration);
 
-      console.log(result);
       if (result) {
         console.log('Quiz created successfully!');
         setUsedAssessments(new Set([...usedAssessments, newQuizAssessment]));
@@ -91,6 +67,12 @@ export default function QuizSystem() {
     }
   };
 
+  useEffect(() => {
+    const usedAssessments = new Set(quizzes.map((quiz) => quiz.assessment));
+    setUsedAssessments(usedAssessments);
+  }, [quizzes])
+
+
   return (
     <div className="container mx-auto py-6">
       <div className="flex flex-col sm:flex-row gap-4 items-center justify-between mb-8">
@@ -102,7 +84,7 @@ export default function QuizSystem() {
         </div>
         <Dialog>
           <DialogTrigger asChild>
-            <Button className="w-full sm:w-fit">
+            <Button className={`w-full sm:w-fit`} disabled={usedAssessments.size >= 3}>
               <PlusCircle className="h-4 w-4" />
               Create Quiz
             </Button>

@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/breadcrumb";
 import { ChevronRight } from "lucide-react";
 import useQuestion from "@/supabase/custom-hooks/useQuestion";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import useQuiz from "@/supabase/custom-hooks/useQuiz";
 
 export default function QuizDetail() {
@@ -25,6 +25,8 @@ export default function QuizDetail() {
 
   const [studentResponses, setStudentResponses] = useState<StudentResponse[]>([/* sample data */]);
   const [openDrawer, setOpenDrawer] = useState<string | null>(null);
+
+  const navigate = useNavigate()
 
   const handleAddQuestion = async (newQuestionData: { title: string; choices: { choice: string; isAnswer: boolean }[] }) => {
     const correctAnswer = newQuestionData.choices.find((c) => c.isAnswer)?.choice || "";
@@ -39,6 +41,13 @@ export default function QuizDetail() {
     await deleteQuestion(questionId);
   };
 
+  const handleDeleteQuiz = async (quizId: number) => {
+    const isSuccessful = await deleteQuiz(quizId);
+    if (isSuccessful) {
+      navigate('/admin/quiz-system')
+    }
+  }
+
   return (
     <div className="container mx-auto py-6">
       <Breadcrumb className="mb-4">
@@ -52,7 +61,7 @@ export default function QuizDetail() {
       </Breadcrumb>
 
       {quizzes.length > 0 && (
-        <QuizHeader onUpdateQuiz={updateQuiz} quizId={quizId} quiz={quizzes[0]} />
+        <QuizHeader onUpdateQuiz={updateQuiz} onDeleteQuiz={handleDeleteQuiz} quizId={quizId} quiz={quizzes[0]} />
       )}
 
       <Tabs defaultValue="quiz" className="w-full">

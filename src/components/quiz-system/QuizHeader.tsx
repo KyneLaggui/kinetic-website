@@ -11,14 +11,22 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { DynamicAlertDialog } from "@/components/DynamicAlertDialog";
+import useQuiz from "@/supabase/custom-hooks/useQuiz";
 
 interface QuizHeaderProps {
   duration: number;
   quizId: number;
-  quiz: 
+  quiz: {
+    id: number,
+    created_at: string,
+    duration: number,
+    response: number,
+    assessment: string,
+    title: string,
+  }
   onDurationChange: (newDuration: number) => void;
   onUpdateQuiz: (id: number, updates: {}) => void;
-  onDeleteQuiz: () => void;
+  onDeleteQuiz: (id: number) => void;
 }
 
 const DESCRIPTION_OPTIONS = [
@@ -42,7 +50,10 @@ export function QuizHeader({
     quiz.assessment
   );
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  
+  const [usedAssessments, setUsedAssessments] = useState(new Set());
+
+  const { quizzes, createQuiz } = useQuiz();
+
   const handleUpdateDuration = async(newDuration: number) => {
     try {
       await onUpdateQuiz(quizId, { duration: newDuration });
@@ -69,6 +80,11 @@ export function QuizHeader({
       console.error("Failed to update description", error);
     }
   };
+  
+  useEffect(() => {
+    const usedAssessments = new Set(quizzes.map((quiz) => quiz.assessment));
+    setUsedAssessments(usedAssessments);
+  }, [quizzes])
   
   return (
     <Card className="w-full mb-4">
@@ -130,8 +146,9 @@ export function QuizHeader({
                           key={option.value}
                           value={option.value}
                           className="text-sm"
+                          disabled={usedAssessments.has(option.value)}
                         >
-                          {option.label}
+                          {option.label}                          
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -224,7 +241,7 @@ export function QuizHeader({
         onClose={() => setIsDeleteDialogOpen(false)}
         onConfirm={() => {
           setIsDeleteDialogOpen(false);
-          onDeleteQuiz();
+          onDeleteQuiz(quizId);
         }}
         title="Delete Quiz"
         description="Are you sure you want to delete this quiz? This action cannot be undone."
