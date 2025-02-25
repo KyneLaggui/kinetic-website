@@ -12,10 +12,8 @@ export function QuestionCard({
   index,
   onEditQuestion,
   onDeleteQuestion,
-  onSetCorrectAnswer,
-  onEditChoice,
+  onSetCorrectAnswer,  
   onDeleteChoice,
-  onAddChoice,
 }) {
   const [alertDialog, setAlertDialog] = useState({
     isOpen: false,
@@ -43,15 +41,13 @@ export function QuestionCard({
         <div className="flex items-start justify-between mb-4">
           <div className="flex items-center gap-2">
             <GripVertical className="h-5 w-5 text-muted-foreground" />
-            <span className="font-medium">Question {index + 1}</span>
+            <span className="font-medium">{question.description}</span>
           </div>
           <div className="flex items-center gap-2">
             <EditQuestionDialog
               question={question}
-              onEditQuestion={onEditQuestion}
-              onEditChoice={onEditChoice}
+              onEditQuestion={onEditQuestion}             
               onDeleteChoice={onDeleteChoice}
-              onAddChoice={onAddChoice}
             />
             <Button variant="ghost" size="icon" onClick={handleDeleteQuestion}>
               <Trash2 className="h-4 w-4" />
@@ -62,19 +58,19 @@ export function QuestionCard({
         <div className="pl-1">
           <p className="mb-4">{question.text}</p>
           <div className="space-y-2">
-            {question.choices.map((choice) => (
+            {question.choices.map((choice, idx) => (
               <div
-                key={choice.id}
+                key={idx}
                 className="flex items-center gap-2 rounded-lg border p-4"
               >
                 <input
                   type="radio"
-                  checked={choice.isCorrect}
-                  onChange={() => onSetCorrectAnswer(question.id, choice.id)}
+                  checked={choice.isAnswer}
+                  onChange={() => onSetCorrectAnswer(idx, idx)}
                   className="h-4 w-4"
                 />
-                <span>{choice.text}</span>
-                {choice.isCorrect && (
+                <span>{choice.choice}</span>
+                {choice.isAnswer && (
                   <span className="ml-auto text-sm text-muted-foreground">
                     <Badge>Correct Answer</Badge>
                   </span>

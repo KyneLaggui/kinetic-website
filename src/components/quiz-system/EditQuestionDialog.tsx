@@ -12,17 +12,31 @@ import { Pencil, Trash2 } from "lucide-react";
 import { AddChoice } from "./AddChoice";
 import { DynamicAlertDialog } from "@/components/DynamicAlertDialog";
 
+interface Choice {
+  choice: string;
+  isAnswer: boolean;
+}
+
+interface Question {
+  quizId: number;
+  id: number;
+  description: string;
+  choices: Choice[];
+}
+
+interface EditQuestionDialogProps {
+  question: Question;
+  onEditQuestion: (updatedQuestion: Question) => void;
+}
+
 export function EditQuestionDialog({
   question,
   onEditQuestion,
-  onEditChoice,
-  onDeleteChoice,
-  onAddChoice,
-}) {
+}: EditQuestionDialogProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [editingQuestion, setEditingQuestion] = useState(false);
-  const [questionText, setQuestionText] = useState(question.text);
-  const [editingChoiceId, setEditingChoiceId] = useState(null);
+  const [questionText, setQuestionText] = useState(question.description);
+  const [editingChoiceIndex, setEditingChoiceIndex] = useState<number | null>(null);
   const [editingChoiceText, setEditingChoiceText] = useState("");
   const [alertDialog, setAlertDialog] = useState({
     isOpen: false,
@@ -31,15 +45,15 @@ export function EditQuestionDialog({
     onConfirm: () => {},
   });
 
-  const handleSaveQuestion = () => {
-    if (questionText.trim() !== question.text) {
+  const handleSaveQuestion = async () => {
+    if (questionText.trim() && questionText !== question.description) {
       setAlertDialog({
         isOpen: true,
         title: "Confirm Changes",
-        description:
-          "Are you sure you want to save these changes to the question?",
-        onConfirm: () => {
-          onEditQuestion(question.id, questionText);
+        description: "Save changes to the question?",
+        onConfirm: async () => {
+          const updatedQuestion = { ...question, description: questionText.trim() };
+          await onEditQuestion(updatedQuestion);
           setEditingQuestion(false);
           setAlertDialog((prev) => ({ ...prev, isOpen: false }));
         },
@@ -49,40 +63,47 @@ export function EditQuestionDialog({
     }
   };
 
-  const handleAddChoice = (choice) => {
-    onAddChoice(question.id, { id: choice.id, text: String(choice.text) });
-  };
+  const handleSaveChoice = (choiceIndex: number) => {
+    const updatedChoices = question.choices.map((choice, index) =>
+      index === choiceIndex ? { ...choice, choice: editingChoiceText } : choice
+    );
 
-  const handleSaveChoice = (choiceId) => {
-    const choice = question.choices.find((c) => c.id === choiceId);
-    if (editingChoiceText.trim() !== choice.text) {
-      setAlertDialog({
-        isOpen: true,
-        title: "Confirm Changes",
-        description:
-          "Are you sure you want to save these changes to the choice?",
-        onConfirm: () => {
-          onEditChoice(question.id, { id: choiceId, text: editingChoiceText });
-          setEditingChoiceId(null);
-          setAlertDialog((prev) => ({ ...prev, isOpen: false }));
-        },
-      });
-    } else {
-      setEditingChoiceId(null);
-    }
-  };
-
-  const handleDeleteChoice = (choiceId) => {
     setAlertDialog({
       isOpen: true,
-      title: "Delete Choice",
-      description:
-        "Are you sure you want to delete this choice? This action cannot be undone.",
+      title: "Confirm Changes",
+      description: "Save changes to the choice?",
       onConfirm: () => {
-        onDeleteChoice(question.id, choiceId);
+        const updatedQuestion = { ...question, choices: updatedChoices };
+        onEditQuestion(updatedQuestion);
+        setEditingChoiceIndex(null);
         setAlertDialog((prev) => ({ ...prev, isOpen: false }));
       },
     });
+  };
+
+  const handleDeleteChoice = (choiceIndex: number) => {
+    const updatedChoices = question.choices.filter((_, index) => index !== choiceIndex);
+
+    setAlertDialog({
+      isOpen: true,
+      title: "Delete Choice",
+      description: "Are you sure you want to delete this choice?",
+      onConfirm: () => {
+        const updatedQuestion = { ...question, choices: updatedChoices };
+        onEditQuestion(updatedQuestion);
+        setAlertDialog((prev) => ({ ...prev, isOpen: false }));
+      },
+    });
+  };
+
+  const handleSetAnswer = (choiceIndex: number) => {
+    const updatedChoices = question.choices.map((choice, index) => ({
+      ...choice,
+      isAnswer: index === choiceIndex,
+    }));
+
+    const updatedQuestion = { ...question, choices: updatedChoices };
+    onEditQuestion(updatedQuestion);
   };
 
   return (
@@ -97,6 +118,7 @@ export function EditQuestionDialog({
           <DialogHeader>
             <DialogTitle>Edit Question</DialogTitle>
           </DialogHeader>
+
           <div className="space-y-6 py-4">
             <div className="space-y-4">
               {editingQuestion ? (
@@ -104,13 +126,13 @@ export function EditQuestionDialog({
                   <Input
                     value={questionText}
                     onChange={(e) => setQuestionText(e.target.value)}
-                    placeholder="Enter question"
+                    placeholder="Edit question"
                   />
                   <Button onClick={handleSaveQuestion}>Save</Button>
                 </div>
               ) : (
                 <div className="flex items-center justify-between">
-                  <p className="text-lg font-medium">{question.text}</p>
+                  <p className="text-lg font-medium">{question.description}</p>
                   <Button
                     variant="ghost"
                     size="icon"
@@ -124,40 +146,41 @@ export function EditQuestionDialog({
 
             <div className="space-y-4">
               <h3 className="text-sm font-medium">Choices</h3>
-              <AddChoice onAdd={handleAddChoice} />
+              <AddChoice
+                quizId={question.quizId}
+                question={question}
+                onEditQuestion={onEditQuestion}
+              />
               <div className="space-y-2">
-                {question.choices.map((choice) => (
+                {question.choices.map((choice, index) => (
                   <div
-                    key={choice.id}
+                    key={index}
                     className="flex items-center gap-2 rounded-lg border p-4"
                   >
                     <input
                       type="radio"
-                      checked={choice.isCorrect}
-                      readOnly
+                      checked={choice.isAnswer}
+                      onChange={() => handleSetAnswer(index)}
                       className="h-4 w-4"
                     />
-                    {editingChoiceId === choice.id ? (
+                    {editingChoiceIndex === index ? (
                       <div className="flex flex-1 items-center gap-2">
                         <Input
                           value={editingChoiceText}
                           onChange={(e) => setEditingChoiceText(e.target.value)}
-                          placeholder="Enter choice"
+                          placeholder="Edit choice"
                         />
-                        <Button onClick={() => handleSaveChoice(choice.id)}>
-                          Save
-                        </Button>
+                        <Button onClick={() => handleSaveChoice(index)}>Save</Button>
                       </div>
                     ) : (
                       <>
-                        <span className="flex-1">{String(choice.text)}</span>{" "}
-                        {/* Convert to string */}
+                        <span className="flex-1">{choice.choice}</span>
                         <Button
                           variant="ghost"
                           size="icon"
                           onClick={() => {
-                            setEditingChoiceId(choice.id);
-                            setEditingChoiceText(choice.text);
+                            setEditingChoiceIndex(index);
+                            setEditingChoiceText(choice.choice);
                           }}
                         >
                           <Pencil className="h-4 w-4" />
@@ -165,7 +188,7 @@ export function EditQuestionDialog({
                         <Button
                           variant="ghost"
                           size="icon"
-                          onClick={() => handleDeleteChoice(choice.id)}
+                          onClick={() => handleDeleteChoice(index)}
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { QuizHeader } from "@/components/quiz-system/QuizHeader";
 import { AddQuestionDialog } from "@/components/quiz-system/AddQuestionDialog";
@@ -14,172 +14,55 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { ChevronRight } from "lucide-react";
+import useQuestion from "@/supabase/custom-hooks/useQuestion";
+import { useNavigate, useParams } from "react-router-dom";
+import useQuiz from "@/supabase/custom-hooks/useQuiz";
 
 export default function QuizDetail() {
-  const [questions, setQuestions] = useState<Question[]>([
-    {
-      id: "1",
-      text: "What is the capital of France?",
-      choices: [
-        { id: "1a", text: "London", isCorrect: false },
-        { id: "1b", text: "Paris", isCorrect: true },
-        { id: "1c", text: "Berlin", isCorrect: false },
-        { id: "1d", text: "Madrid", isCorrect: false },
-      ],
-    },
-    {
-      id: "2",
-      text: "Which planet is known as the Red Planet?",
-      choices: [
-        { id: "2a", text: "Venus", isCorrect: false },
-        { id: "2b", text: "Mars", isCorrect: true },
-        { id: "2c", text: "Jupiter", isCorrect: false },
-        { id: "2d", text: "Saturn", isCorrect: false },
-      ],
-    },
-  ]);
+  const { quizId } = useParams<{ quizId: string }>();
+  const { questions, createQuestion, updateQuestion, deleteQuestion, loading, error } = useQuestion(quizId);
+  const { quizzes, updateQuiz, deleteQuiz } = useQuiz(quizId)
 
-  const [studentResponses, setStudentResponses] = useState<StudentResponse[]>([
-    {
-      id: "1",
-      name: "John Doe",
-      studentId: "2021-12345-MN-0",
-      score: 8,
-      totalQuestions: 10,
-      percentage: 80,
-      dateTaken: "2024-02-15",
-      answers: [
-        { questionId: "1", choiceId: "1b" },
-        { questionId: "2", choiceId: "2b" },
-      ],
-    },
-    {
-      id: "2",
-      name: "Jane Smith",
-      studentId: "2021-67890-MN-0",
-      score: 7,
-      totalQuestions: 10,
-      percentage: 70,
-      dateTaken: "2024-02-15",
-      answers: [
-        { questionId: "1", choiceId: "1b" },
-        { questionId: "2", choiceId: "2c" },
-      ],
-    },
-  ]);
-
-  const [duration, setDuration] = useState(60);
+  const [studentResponses, setStudentResponses] = useState<StudentResponse[]>([/* sample data */]);
   const [openDrawer, setOpenDrawer] = useState<string | null>(null);
 
-  const handleAddQuestion = (newQuestionData: {
-    title: string;
-    choices: string[];
-  }) => {
-    const newQuestion: Question = {
-      id: `q${questions.length + 1}`,
-      text: newQuestionData.title,
-      choices: newQuestionData.choices.map((choiceText, index) => ({
-        id: `q${questions.length + 1}c${index + 1}`,
-        text: choiceText,
-        isCorrect: index === 0,
-      })),
-    };
-    setQuestions([...questions, newQuestion]);
+  const navigate = useNavigate()
+
+  const handleAddQuestion = async (newQuestionData: { title: string; choices: { choice: string; isAnswer: boolean }[] }) => {
+    const correctAnswer = newQuestionData.choices.find((c) => c.isAnswer)?.choice || "";
+    await createQuestion(newQuestionData.title, newQuestionData.choices, correctAnswer, quizId);
+  };
+  
+  const handleEditQuestion = async (updatedQuestion: Question) => {    
+    await updateQuestion(updatedQuestion.id, updatedQuestion);
   };
 
-  const handleEditQuestion = (updatedQuestion: Question) => {
-    setQuestions(
-      questions.map((q) => (q.id === updatedQuestion.id ? updatedQuestion : q))
-    );
+  const handleDeleteQuestion = async (questionId: string) => {
+    await deleteQuestion(questionId);
   };
 
-  const handleDeleteQuestion = (questionId: string) => {
-    setQuestions(questions.filter((q) => q.id !== questionId));
-  };
-
-  const handleSetCorrectAnswer = (questionId: string, choiceId: string) => {
-    setQuestions(
-      questions.map((q) =>
-        q.id === questionId
-          ? {
-              ...q,
-              choices: q.choices.map((c) => ({
-                ...c,
-                isCorrect: c.id === choiceId,
-              })),
-            }
-          : q
-      )
-    );
-  };
-
-  const handleEditChoice = (questionId: string, updatedChoice: Choice) => {
-    setQuestions(
-      questions.map((q) =>
-        q.id === questionId
-          ? {
-              ...q,
-              choices: q.choices.map((c) =>
-                c.id === updatedChoice.id ? updatedChoice : c
-              ),
-            }
-          : q
-      )
-    );
-  };
-
-  const handleDeleteChoice = (questionId: string, choiceId: string) => {
-    setQuestions(
-      questions.map((q) =>
-        q.id === questionId
-          ? {
-              ...q,
-              choices: q.choices.filter((c) => c.id !== choiceId),
-            }
-          : q
-      )
-    );
-  };
-
-  const handleAddChoice = (questionId: string, choiceText: string) => {
-    setQuestions(
-      questions.map((q) =>
-        q.id === questionId
-          ? {
-              ...q,
-              choices: [
-                ...q.choices,
-                {
-                  id: `${questionId}c${q.choices.length + 1}`,
-                  text: choiceText,
-                  isCorrect: false,
-                },
-              ],
-            }
-          : q
-      )
-    );
-  };
+  const handleDeleteQuiz = async (quizId: number) => {
+    const isSuccessful = await deleteQuiz(quizId);
+    if (isSuccessful) {
+      navigate('/admin/quiz-system')
+    }
+  }
 
   return (
     <div className="container mx-auto py-6">
       <Breadcrumb className="mb-4">
         <BreadcrumbList>
           <BreadcrumbItem>
-            <BreadcrumbLink href="/admin/quiz-system">
-              All Quizzes
-            </BreadcrumbLink>
+            <BreadcrumbLink href="/admin/quiz-system">All Quizzes</BreadcrumbLink>
           </BreadcrumbItem>
-          <BreadcrumbSeparator>
-            <ChevronRight className="h-4 w-4" />
-          </BreadcrumbSeparator>
-          <BreadcrumbItem>
-            <BreadcrumbPage>Quiz Name</BreadcrumbPage>
-          </BreadcrumbItem>
+          <BreadcrumbSeparator><ChevronRight className="h-4 w-4" /></BreadcrumbSeparator>
+          <BreadcrumbItem><BreadcrumbPage>Quiz Name</BreadcrumbPage></BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
 
-      <QuizHeader duration={duration} onDurationChange={setDuration} />
+      {quizzes.length > 0 && (
+        <QuizHeader onUpdateQuiz={updateQuiz} onDeleteQuiz={handleDeleteQuiz} quizId={quizId} quiz={quizzes[0]} />
+      )}
 
       <Tabs defaultValue="quiz" className="w-full">
         <TabsList className="mb-4">
@@ -192,17 +75,13 @@ export default function QuizDetail() {
             <AddQuestionDialog onAddQuestion={handleAddQuestion} />
           </div>
 
-          {questions.map((question, index) => (
+          {loading ? <p>Loading questions...</p> : error ? <p>Error: {error}</p> : questions.map((question, index) => (
             <QuestionCard
               key={question.id}
               question={question}
               index={index}
               onEditQuestion={handleEditQuestion}
               onDeleteQuestion={handleDeleteQuestion}
-              onSetCorrectAnswer={handleSetCorrectAnswer}
-              onEditChoice={handleEditChoice}
-              onDeleteChoice={handleDeleteChoice}
-              onAddChoice={handleAddChoice}
             />
           ))}
         </TabsContent>

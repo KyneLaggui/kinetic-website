@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -11,8 +11,22 @@ import {
   DialogTrigger,
   DialogFooter,
 } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Menu, X } from "lucide-react";
+import { useAuth } from "../supabase/custom-hooks/useAuth.tsx";
+import { loginSchema } from "@/lib/validation";
+import ProtectedComponent from "@/components/auth/ProtectedComponent"
 
 const navItems = [
   { name: "Scores", path: "/admin/scores" },
@@ -21,6 +35,13 @@ const navItems = [
 
 const Header = () => {
   const [open, setOpen] = useState(false);
+  const [userState, setUserState] = useState(null)
+
+  const { user } = useAuth()
+
+  useEffect(() => {
+    setUserState(user)
+  }, [user])
 
   return (
     <header className="bg-white shadow-sm w-full sticky top-0 z-50">
@@ -32,29 +53,31 @@ const Header = () => {
               Ki<span className="text-pink-600">Net</span>Ic
             </span>
           </NavLink>
-
+          
           {/* Navigation for larger screens */}
-          <nav className="hidden md:flex space-x-8">
-            {navItems.map((item) => (
-              <NavLink
-                key={item.path}
-                to={item.path}
-                className={({ isActive }) =>
-                  `relative pb-2 hover:text-purple-600 hover:font-medium transition-all duration-300 ${
-                    isActive
-                      ? 'text-purple-600 after:content-[""] font-medium after:absolute after:bottom-0 after:left-0 after:h-[3px] after:w-full after:bg-purple-600 after:transition-all after:duration-300'
-                      : 'after:content-[""] after:absolute after:bottom-0 after:left-0 after:h-[3px] after:w-0 after:bg-purple-600 after:hover:w-full after:transition-all after:duration-300'
-                  }`
-                }
-              >
-                {item.name}
-              </NavLink>
-            ))}
-          </nav>
+          <ProtectedComponent>        
+            <nav className="hidden md:flex space-x-8">
+              {navItems.map((item) => (
+                <NavLink
+                  key={item.path}
+                  to={item.path}
+                  className={({ isActive }) =>
+                    `relative pb-2 hover:text-purple-600 hover:font-medium transition-all duration-300 ${
+                      isActive
+                        ? 'text-purple-600 after:content-[""] font-medium after:absolute after:bottom-0 after:left-0 after:h-[3px] after:w-full after:bg-purple-600 after:transition-all after:duration-300'
+                        : 'after:content-[""] after:absolute after:bottom-0 after:left-0 after:h-[3px] after:w-0 after:bg-purple-600 after:hover:w-full after:transition-all after:duration-300'
+                    }`
+                  }
+                >
+                  {item.name}
+                </NavLink>
+              ))}
+            </nav>                
+          </ProtectedComponent>
 
           {/* Login Button for Larger Screens */}
           <div className="hidden md:block">
-            <LoginDialog />
+            <LoginLogoutDialog variant={userState ? "logout" : "login"}/>
           </div>
 
           {/* Mobile menu button */}
@@ -96,7 +119,7 @@ const Header = () => {
                     ))}
                   </div>
                   <div className="px-4 py-4 border-t border-gray-200">
-                    <LoginDialog />
+                    <LoginLogoutDialog variant={userState ? "logout" : "login"}/>
                   </div>
                 </div>
               </SheetContent>
@@ -108,32 +131,97 @@ const Header = () => {
   );
 };
 
-const LoginDialog = () => (
-  <Dialog>
-    <DialogTrigger asChild>
-      <Button className="w-full md:w-auto">Login</Button>
-    </DialogTrigger>
-    <DialogContent className="sm:max-w-[425px]">
-      <DialogHeader>
-        <DialogTitle>Login</DialogTitle>
-      </DialogHeader>
-      <div className="grid gap-4 py-4">
-        <div className="grid w-full gap-1.5">
-          <Label htmlFor="email">Email</Label>
-          <Input type="email" id="email" placeholder="Enter Email" />
-        </div>
-        <div className="grid w-full gap-1.5">
-          <Label htmlFor="password">Password</Label>
-          <Input type="password" id="password" placeholder="Enter Password" />
-        </div>
-      </div>
-      <DialogFooter>
-        <Button type="submit" className="w-full">
-          Login
-        </Button>
-      </DialogFooter>
-    </DialogContent>
-  </Dialog>
-);
+const LoginLogoutDialog = ({ variant }) => {
+  const [user, setUser] = useState({
+    email: "",
+    password: "",
+  })
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+
+    setUser((prevState) => {
+      return {
+        ...prevState,
+        [name]: value,
+      }      
+    })
+  }
+
+  const { signIn, signOut } = useAuth()
+
+  const handleSubmit = async() => { 
+    const validationResult = loginSchema.safeParse(user);
+
+    if (validationResult.success) {
+      const result = await signIn(user.email, user.password);
+
+      if (!result.error) {
+        console.log('Signed in successfully!')
+      } else {
+        console.error(result.error);
+      }      
+    } else {
+      console.log(validationResult.error.errors);
+    }
+  }
+  const handleLogout = () => {
+    signOut()
+  }
+
+  return (
+    <>
+      {
+        variant === "login" ? (
+          <Dialog>      
+            <DialogTrigger asChild>
+              <Button className="w-full md:w-auto">Login</Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[425px]">
+              <DialogHeader>
+                <DialogTitle>Login</DialogTitle>
+              </DialogHeader>
+              <div className="grid gap-4 py-4">
+                <div className="grid w-full gap-1.5">
+                  <Label htmlFor="email">Email</Label>
+                  <Input type="email" id="email" name="email" placeholder="Enter Email" onChange={handleChange} />
+                </div>
+                <div className="grid w-full gap-1.5">
+                  <Label htmlFor="password">Password</Label>
+                  <Input type="password" id="password" name="password" placeholder="Enter Password" onChange={handleChange} />
+                </div>
+              </div>
+
+              <DialogFooter>            
+                <Button type="submit" className="w-full" onClick={handleSubmit}>
+                  Login
+                </Button>                   
+              </DialogFooter>
+            </DialogContent>                               
+          </Dialog>
+        ) : (
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button variant="destructive">Logout</Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Are you sure you want to log out?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  This will log out your currently logged in account.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction onClick={handleLogout}>Continue</AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        )
+      }
+    </>
+    
+  )  
+};
 
 export default Header;

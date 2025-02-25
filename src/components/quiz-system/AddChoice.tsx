@@ -3,16 +3,37 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Plus, Check, X } from "lucide-react";
 
-export function AddChoice() {
+interface Choice {
+  choice: string;
+  isAnswer: boolean;
+}
+
+interface Question {
+  quizId: number;
+  description: string;
+  choices: Choice[];
+}
+
+interface AddChoiceProps {
+  question: Question;
+  onEditQuestion: (updatedQuestion: Question) => Promise<void>;
+}
+
+export function AddChoice({ question, onEditQuestion }: AddChoiceProps) {
   const [isAdding, setIsAdding] = useState(false);
   const [newChoice, setNewChoice] = useState("");
 
-  const handleSave = () => {
-    if (newChoice.trim()) {
-      console.log("Choice saved:", newChoice.trim());
-      setNewChoice("");
-    }
-    setIsAdding(false);
+  const handleSave = async () => {
+    if (!newChoice.trim()) return;
+
+    const updatedQuestion = {
+      ...question,
+      choices: [...question.choices, { choice: newChoice.trim(), isAnswer: false }],
+    };
+
+    await onEditQuestion(updatedQuestion); // Update in the database
+    setNewChoice(""); // Clear input
+    setIsAdding(false); // Close input field
   };
 
   const handleDiscard = () => {
@@ -30,12 +51,7 @@ export function AddChoice() {
           className="flex-1"
           autoFocus
         />
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={handleSave}
-          disabled={!newChoice.trim()}
-        >
+        <Button variant="ghost" size="icon" onClick={handleSave} disabled={!newChoice.trim()}>
           <Check className="h-4 w-4" />
         </Button>
         <Button variant="ghost" size="icon" onClick={handleDiscard}>
@@ -46,11 +62,7 @@ export function AddChoice() {
   }
 
   return (
-    <Button
-      variant="outline"
-      className="mb-4"
-      onClick={() => setIsAdding(true)}
-    >
+    <Button variant="outline" className="mb-4" onClick={() => setIsAdding(true)}>
       <Plus className="h-4 w-4 mr-2" />
       Add Choice
     </Button>
