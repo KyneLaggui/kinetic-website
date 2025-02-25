@@ -46,25 +46,15 @@ export default function QuizSystem() {
   const assessments = ["Assessment 1", "Assessment 2", "Assessment 3"];
 
   const handleCreateQuiz = async() => {    
-    const validationResult = quizSchema.safeParse({
-      title: newQuizTitle,
-      assessment: newQuizAssessment,
-      duration: newQuizDuration,
-    });
+    const result = await createQuiz(newQuizTitle, newQuizAssessment, newQuizDuration);
 
-    if (validationResult.success) {
-      const result = await createQuiz(newQuizTitle, newQuizAssessment, newQuizDuration);
+    if (result) {
+      setUsedAssessments(new Set([...usedAssessments, newQuizAssessment]));
+      setNewQuizTitle("");
+      setNewQuizAssessment("");
+      setNewQuizDuration("");
+    }     
 
-      if (result) {
-        console.log('Quiz created successfully!');
-        setUsedAssessments(new Set([...usedAssessments, newQuizAssessment]));
-        setNewQuizTitle("");
-        setNewQuizAssessment("");
-        setNewQuizDuration("");
-      }     
-    } else {
-      console.log(validationResult.error.errors);
-    }
   };
 
   useEffect(() => {
