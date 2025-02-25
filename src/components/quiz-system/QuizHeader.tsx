@@ -52,7 +52,7 @@ export function QuizHeader({
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [usedAssessments, setUsedAssessments] = useState(new Set());
 
-  const { quizzes, createQuiz } = useQuiz();
+  const { quizzes } = useQuiz();
 
   const handleUpdateDuration = async(newDuration: number) => {
     try {
@@ -82,7 +82,10 @@ export function QuizHeader({
   };
   
   useEffect(() => {
-    const usedAssessments = new Set(quizzes.map((quiz) => quiz.assessment));
+    const excludedAssessment = quiz.assessment;
+    const usedAssessments = new Set(quizzes.filter(
+      (quiz) => quiz.assessment !== excludedAssessment).map((quiz) => quiz.assessment)
+    );
     setUsedAssessments(usedAssessments);
   }, [quizzes])
   
