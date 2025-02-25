@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../config';
+import { showNotification } from '@/lib/utils'
+import { quizSchema } from "@/lib/validation";
 
 const useQuiz = (id=null) => {
   const [quizzes, setQuizzes] = useState([]);
@@ -60,35 +62,64 @@ const useQuiz = (id=null) => {
   }, []);
 
   // Add a new quiz
-  const createQuiz = async (title, assessment, duration) => {
+  const createQuiz = async (title: string, assessment: string, duration: number) => {
+    const validationResult = quizSchema.safeParse({
+      title,
+      assessment,
+      duration,
+    });
+
+    if (!validationResult.success) {
+      setError(validationResult.error.message);
+      showNotification('error', 'Invalid data provided for quiz creation!');
+      return false;
+    }
+
     try {
       const { error } = await supabase.from('quiz').insert([{ title, assessment, duration }]);
       if (error) throw error;
+      showNotification('success', 'Quiz created successfully!');
       return true
     } catch (err) {
       setError(err.message);
+      showNotification('error', 'Quiz creation failed!');
       return false
     }
   };
 
-  // Update a quiz
-  const updateQuiz = async (id, updates) => {
-    try {
-      const { error } = await supabase.from('quiz').update(updates).eq('id', id);
-      if (error) throw error;
-    } catch (err) {
-      setError(err.message);
-    }
-  };
+// Update a quiz
+const updateQuiz = async (id: number, updates: Record<string, any>) => {
+  // Allow partial validation for updates
+  const partialQuizSchema = quizSchema.partial();
+  const validationResult = partialQuizSchema.safeParse(updates);
+
+  if (!validationResult.success) {
+    setError(validationResult.error.message);
+    showNotification('error', 'Invalid data provided for quiz update!');
+    return;
+  }
+
+  try {
+    const { error } = await supabase.from('quiz').update(updates).eq('id', id);
+    if (error) throw error;
+    showNotification('success', 'Quiz updated successfully!');
+  } catch (err) {
+    setError(err.message);
+    showNotification('error', 'Quiz update failed!');
+  }
+};
+
 
   // Delete a quiz
   const deleteQuiz = async (id) => {
     try {
       const { error } = await supabase.from('quiz').delete().eq('id', id);
       if (error) throw error;
+      showNotification('success', 'Quiz deleted successfully!');     
       return true;
     } catch (err) {
       setError(err.message);
+      showNotification('success', 'Quiz deletion failed!');     
       return false;
     }
   };

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../config';
+import { showNotification } from '@/lib/utils' 
 
 const useQuestion = (id) => {
   const [questions, setQuestions] = useState([]);
@@ -60,9 +61,11 @@ const useQuestion = (id) => {
     try {
       const { error } = await supabase.from('question').insert([{ description, choices, "quiz_id": quizId }]);
       if (error) throw error;
+      showNotification('success', 'Question added successfuly!')
       return true
     } catch (err) {
       console.log(err);
+      showNotification('error', 'Question addition failed!')
       return false
     }
   };
@@ -72,8 +75,10 @@ const useQuestion = (id) => {
     try {
       const { error } = await supabase.from('question').update(updates).eq('id', id);
       if (error) throw error;
+      showNotification('success', 'Question updated successfuly!')
     } catch (err) {
       setError(err.message);
+      showNotification('error', 'Question update failed!')
     }
   };
 
@@ -82,8 +87,10 @@ const useQuestion = (id) => {
     try {
       const { error } = await supabase.from('question').delete().eq('id', id);
       if (error) throw error;
+      showNotification('success', 'Question deleted successfuly!')
     } catch (err) {
       setError(err.message);
+      showNotification('error', 'Question deletion failed!')
     }
   };
 
