@@ -26,6 +26,7 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Menu, X } from "lucide-react";
 import { useAuth } from "../supabase/custom-hooks/useAuth.tsx";
 import { loginSchema } from "@/lib/validation";
+import ProtectedComponent from "@/components/auth/ProtectedComponent"
 
 const navItems = [
   { name: "Scores", path: "/admin/scores" },
@@ -54,27 +55,25 @@ const Header = () => {
           </NavLink>
           
           {/* Navigation for larger screens */}
-          {
-            userState && (
-              <nav className="hidden md:flex space-x-8">
-                {navItems.map((item) => (
-                  <NavLink
-                    key={item.path}
-                    to={item.path}
-                    className={({ isActive }) =>
-                      `relative pb-2 hover:text-purple-600 hover:font-medium transition-all duration-300 ${
-                        isActive
-                          ? 'text-purple-600 after:content-[""] font-medium after:absolute after:bottom-0 after:left-0 after:h-[3px] after:w-full after:bg-purple-600 after:transition-all after:duration-300'
-                          : 'after:content-[""] after:absolute after:bottom-0 after:left-0 after:h-[3px] after:w-0 after:bg-purple-600 after:hover:w-full after:transition-all after:duration-300'
-                      }`
-                    }
-                  >
-                    {item.name}
-                  </NavLink>
-                ))}
-              </nav>
-            )
-          }         
+          <ProtectedComponent>        
+            <nav className="hidden md:flex space-x-8">
+              {navItems.map((item) => (
+                <NavLink
+                  key={item.path}
+                  to={item.path}
+                  className={({ isActive }) =>
+                    `relative pb-2 hover:text-purple-600 hover:font-medium transition-all duration-300 ${
+                      isActive
+                        ? 'text-purple-600 after:content-[""] font-medium after:absolute after:bottom-0 after:left-0 after:h-[3px] after:w-full after:bg-purple-600 after:transition-all after:duration-300'
+                        : 'after:content-[""] after:absolute after:bottom-0 after:left-0 after:h-[3px] after:w-0 after:bg-purple-600 after:hover:w-full after:transition-all after:duration-300'
+                    }`
+                  }
+                >
+                  {item.name}
+                </NavLink>
+              ))}
+            </nav>                
+          </ProtectedComponent>
 
           {/* Login Button for Larger Screens */}
           <div className="hidden md:block">
