@@ -20,6 +20,21 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
+// FormField Component
+function FormField({ label, id, placeholder, required, children }) {
+  return (
+    <div className="flex flex-col gap-2 w-full">
+      <Label htmlFor={id} className="text-sm font-medium">
+        {label} {required && <span className="text-red-500">*</span>}
+      </Label>
+      {children || (
+        <Input id={id} placeholder={placeholder} required={required} />
+      )}
+    </div>
+  );
+}
+
+// Register Component
 export function Register() {
   return (
     <Dialog>
@@ -33,34 +48,44 @@ export function Register() {
             Register a new student to the system.
           </DialogDescription>
         </DialogHeader>
+
         <div className="grid gap-4 py-4">
-          <div className="flex flex-col gap-4 sm:flex-row sm:gap-2 justify-between">
-            <div className="flex flex-col gap-2 w-full">
-              <Label htmlFor="first_name">First Name</Label>
-              <Input id="first_name" />
-            </div>
-            <div className="flex flex-col gap-2 w-full">
-              <Label htmlFor="middle_name">Middle Name</Label>
-              <Input id="middle_name" />
-            </div>
-          </div>
-          <div className="flex flex-col gap-4 sm:flex-row sm:gap-2 justify-between">
-            <div className="flex flex-col gap-2 w-full">
-              <Label htmlFor="last_Name">Last Name</Label>
-              <Input id="last_name" />
-            </div>
-            <div className="flex flex-col gap-2 w-full">
-              <Label htmlFor="suffix">Suffix</Label>
-              <Input id="suffix" />
-            </div>
+          {/* First Name & Middle Name */}
+          <div className="flex flex-col sm:flex-row gap-4 sm:gap-2">
+            <FormField
+              label="First Name"
+              id="first_name"
+              placeholder="Juan"
+              required
+            />
+            <FormField
+              label="Middle Name"
+              id="middle_name"
+              placeholder="Navarro"
+            />
           </div>
 
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="student_id">Student ID</Label>
-            <Input id="student_id" />
+          {/* Last Name & Suffix */}
+          <div className="flex flex-col sm:flex-row gap-4 sm:gap-2">
+            <FormField
+              label="Last Name"
+              id="last_name"
+              placeholder="Dela Cruz"
+              required
+            />
+            <FormField label="Suffix" id="suffix" placeholder="Jr." />
           </div>
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="section">Section</Label>
+
+          {/* Student ID */}
+          <FormField
+            label="Student ID"
+            id="student_id"
+            placeholder="202X-XXXXX-MN-0"
+            required
+          />
+
+          {/* Year & Section */}
+          <FormField label="Section" id="section" required>
             <div className="flex flex-row gap-2">
               <Select>
                 <SelectTrigger>
@@ -69,17 +94,18 @@ export function Register() {
                 <SelectContent>
                   <SelectGroup>
                     <SelectLabel>Year</SelectLabel>
-                    <SelectItem value="apple">1</SelectItem>
-                    <SelectItem value="banana">2</SelectItem>
-                    <SelectItem value="blueberry">3</SelectItem>
-                    <SelectItem value="grapes">4</SelectItem>
+                    <SelectItem value="1">1</SelectItem>
+                    <SelectItem value="2">2</SelectItem>
+                    <SelectItem value="3">3</SelectItem>
+                    <SelectItem value="4">4</SelectItem>
                   </SelectGroup>
                 </SelectContent>
               </Select>
-              <Input id="section" />
+              <Input id="section" placeholder="3" required />
             </div>
-          </div>
+          </FormField>
         </div>
+
         <DialogFooter>
           <Button type="submit">Register</Button>
         </DialogFooter>
