@@ -35,7 +35,7 @@ function FormField({
 }) {
   return (
     <div className="flex flex-col gap-2 w-full">
-      <Label htmlFor={id} className="text-sm font-medium">
+      <Label htmlFor={id}>
         {label} {required && <span className="text-red-500">*</span>}
       </Label>
       {children || (
