@@ -114,7 +114,7 @@ export function Register() {
         </DialogHeader>
 
         <ScrollArea className="max-h-[400px] sm:max-h-none">
-          <form onSubmit={handleSubmit} className="grid gap-4 py-4">
+          <form onSubmit={handleSubmit} className="grid gap-4 sm:p-2">
             {/* First Name & Middle Name */}
             <div className="flex flex-col sm:flex-row gap-4 sm:gap-2">
               <FormField
