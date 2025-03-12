@@ -1,5 +1,6 @@
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Register } from "@/components/Register";
 import { Backpack, Presentation, X } from "lucide-react";
 import DataTableFacetedFilter from "@/components/tables/student/data-table-faceted-filter";
 
@@ -30,6 +31,7 @@ function DataTableToolbar({ table, allData }) {
         </div>
 
         <Button>Export CSV</Button>
+        <Register />
       </div>
     </div>
   );
