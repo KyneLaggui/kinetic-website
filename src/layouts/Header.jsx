@@ -27,6 +27,7 @@ import { Menu, X } from "lucide-react";
 import { useAuth } from "../supabase/custom-hooks/useAuth.tsx";
 import { loginSchema } from "@/lib/validation";
 import ProtectedComponent from "@/components/auth/ProtectedComponent"
+import { showNotification } from "@utils";
 
 const navItems = [
   { name: "Scores", path: "/admin/scores" },
@@ -157,16 +158,22 @@ const LoginLogoutDialog = ({ variant }) => {
       const result = await signIn(user.email, user.password);
 
       if (!result.error) {
-        console.log('Signed in successfully!')
+        console.log('Signed in successfully!');
+        showNotification('success', 'Signed in successfully!');
       } else {
-        console.error(result.error);
+        showNotification('error', 'Error signing in!');
       }      
     } else {
-      console.log(validationResult.error.errors);
+      const formattedErrors = validationResult.error.errors
+      .map(err => `• ${err.message}`) // Add bullet points
+      .join('\n'); // Join with line breaks for readability
+  
+      showNotification('error', formattedErrors);
     }
   }
   const handleLogout = () => {
     signOut()
+    showNotification('success', 'Signed out successfully!');
   }
 
   return (
