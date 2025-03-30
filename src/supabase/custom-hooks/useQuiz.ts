@@ -3,19 +3,19 @@ import { supabase } from '../config';
 import { showNotification } from '@/lib/utils'
 import { quizSchema } from "@/lib/validation";
 
-const useQuiz = (id=null) => {
+const useQuiz = (assessmentId=null) => {
   const [quizzes, setQuizzes] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
   // Fetch all quizzes
-  const fetchQuizzes = async (id?: string) => {
+  const fetchQuizzes = async (assessmentId?: string) => {
     setLoading(true);
     setError(null);
     try {
       let query = supabase.from('quiz').select('*');
-      if (id) {
-        query = query.eq('id', id);
+      if (assessmentId) {
+        query = query.eq('assessment', assessmentId);
       }
       const { data, error } = await query;
       if (error) throw error;
@@ -29,7 +29,7 @@ const useQuiz = (id=null) => {
 
   // Realtime subscription
   useEffect(() => {
-    fetchQuizzes(id); // Initial fetch
+    fetchQuizzes(assessmentId); // Initial fetch
 
     const subscription = supabase
       .channel('quiz-changes')
@@ -88,7 +88,7 @@ const useQuiz = (id=null) => {
   };
 
 // Update a quiz
-const updateQuiz = async (id: number, updates: Record<string, any>) => {
+const updateQuiz = async (assessmentId: string, updates: Record<string, any>) => {
   // Allow partial validation for updates
   const partialQuizSchema = quizSchema.partial();
   const validationResult = partialQuizSchema.safeParse(updates);
@@ -100,7 +100,7 @@ const updateQuiz = async (id: number, updates: Record<string, any>) => {
   }
 
   try {
-    const { error } = await supabase.from('quiz').update(updates).eq('id', id);
+    const { error } = await supabase.from('quiz').update(updates).eq('assessment', assessmentId);
     if (error) throw error;
     showNotification('success', 'Quiz updated successfully!');
   } catch (err) {
@@ -111,9 +111,9 @@ const updateQuiz = async (id: number, updates: Record<string, any>) => {
 
 
   // Delete a quiz
-  const deleteQuiz = async (id) => {
+  const deleteQuiz = async (assessmentId) => {
     try {
-      const { error } = await supabase.from('quiz').delete().eq('id', id);
+      const { error } = await supabase.from('quiz').delete().eq('assessment', assessmentId);
       if (error) throw error;
       showNotification('success', 'Quiz deleted successfully!');     
       return true;

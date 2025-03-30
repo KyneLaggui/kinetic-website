@@ -35,8 +35,8 @@ export default function QuizSystem() {
   const navigate = useNavigate();
   const { quizzes, createQuiz } = useQuiz();
 
-  const handleNavigate = (id) => {
-    navigate(`/admin/quiz-detail/${id}`);
+  const handleNavigate = (assessmentId) => {
+    navigate(`/admin/quiz-detail/${assessmentId}`);
   };
 
   const [newQuizTitle, setNewQuizTitle] = useState("");
@@ -143,7 +143,7 @@ export default function QuizSystem() {
           <Card
             key={quiz.id}
             className="cursor-pointer hover:shadow-lg transition"
-            onClick={() => handleNavigate(quiz.id)}
+            onClick={() => handleNavigate(quiz.assessment)}
           >
             <CardHeader>
               <CardTitle>{quiz.title}</CardTitle>

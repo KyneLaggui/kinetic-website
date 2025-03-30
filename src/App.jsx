@@ -20,7 +20,7 @@ function App() {
             element={<AuthGuard><Pages.StudentBreakdown /></AuthGuard>}
           />
           <Route path="quiz-system" element={<AuthGuard><Pages.QuizSystem /></AuthGuard>} />
-          <Route path="quiz-detail/:quizId" element={<AuthGuard><Pages.QuizDetail /></AuthGuard>} />
+          <Route path="quiz-detail/:assessmentId" element={<AuthGuard><Pages.QuizDetail /></AuthGuard>} />
         </Route>
       </Routes>
     </>

@@ -15,7 +15,7 @@ import useQuiz from "@/supabase/custom-hooks/useQuiz";
 
 interface QuizHeaderProps {
   duration: number;
-  quizId: number;
+  assessmentId: string;
   quiz: {
     id: number,
     created_at: string,
@@ -36,7 +36,7 @@ const DESCRIPTION_OPTIONS = [
 ];
 
 export function QuizHeader({
-  quizId,
+  assessmentId,
   quiz,
   onUpdateQuiz,
   onDeleteQuiz,
@@ -56,7 +56,7 @@ export function QuizHeader({
 
   const handleUpdateDuration = async(newDuration: number) => {
     try {
-      await onUpdateQuiz(quizId, { duration: newDuration });
+      await onUpdateQuiz(assessmentId, { duration: newDuration });
       setIsEditingDuration(false);
     } catch (error) {
       console.error("Failed to update duration", error);
@@ -65,7 +65,7 @@ export function QuizHeader({
 
   const handleUpdateTitle = async() => {
     try {
-      await onUpdateQuiz(quizId, { title: localTitle }); // Assuming an API call function
+      await onUpdateQuiz(assessmentId, { title: localTitle }); // Assuming an API call function
       setIsEditingTitle(false);
     } catch (error) {
       console.error("Failed to update title", error);
@@ -74,7 +74,7 @@ export function QuizHeader({
   
   const handleUpdateDescription = async () => {
     try {
-      await onUpdateQuiz(quizId, { assessment: localAssessment });
+      await onUpdateQuiz(assessmentId, { assessment: localAssessment });
       setIsEditingAssessment(false);
     } catch (error) {
       console.error("Failed to update description", error);
@@ -244,7 +244,7 @@ export function QuizHeader({
         onClose={() => setIsDeleteDialogOpen(false)}
         onConfirm={() => {
           setIsDeleteDialogOpen(false);
-          onDeleteQuiz(quizId);
+          onDeleteQuiz(assessmentId);
         }}
         title="Delete Quiz"
         description="Are you sure you want to delete this quiz? This action cannot be undone."
