@@ -7,6 +7,8 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
+      "@validation": path.resolve(__dirname, "./src/lib/validation.js"),
+      "@utils": path.resolve(__dirname, "./src/lib/utils.js"),
     },
   },
 });
