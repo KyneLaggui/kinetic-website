@@ -14,16 +14,34 @@ function DataTableToolbar({ table, allData }) {
     console.log("Filter Value:", table.getColumn("name")?.getFilterValue());
   };
 
+  // Function to convert data to CSV
+  const convertToCSV = (data) => {
+    const headers = Object.keys(data[0]);
+    const rows = data.map(item => 
+      headers.map(header => `"${item[header] || ''}"`).join(',')
+    );
+    return [headers.join(','), ...rows].join('\n');
+  };
+
+  // Function to download CSV file
+  const downloadCSV = () => {
+    const csv = convertToCSV(allData);  // Use allData or table.getRowModel().rows for current data
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'data.csv';
+    link.click();
+  };
+
   return (
     <div className="flex flex-col items-start lg:flex-row lg:justify-between gap-2 w-full">
       <div className="flex flex-col sm:flex-row gap-2 w-full ">
         <Input
           placeholder="Search for User..."
-                  value={
-          table.getColumn("name")?.getFilterValue() || 
-          ""
-        }
-        onChange={handleSearch}
+          value={
+            table.getColumn("name")?.getFilterValue() || ""
+          }
+          onChange={handleSearch}
           className="h-11"
         />
 
@@ -40,7 +58,7 @@ function DataTableToolbar({ table, allData }) {
           )}
         </div>
 
-        <Button>Export CSV</Button>
+        <Button onClick={downloadCSV}>Export CSV</Button>
         <Register />
       </div>
     </div>
