@@ -39,13 +39,15 @@ export const columns = [
 
   {
     accessorKey: "name",
+    accessorFn: (row) => `${row.user.last_name}, ${row.user.first_name} ${row.user.middle_name}`,
+    id: "name", 
     header: () => (
       <p className="flex items-center gap-1 cursor-pointer">Full Name</p>
     ),
     cell: ({ row }) => {
       const { first_name, last_name, middle_name } = row.original.user;
 
-     return (<TableCell>{first_name} {middle_name} {last_name}</TableCell>)
+     return <TableCell>{first_name} {middle_name} {last_name}</TableCell>
     },
   },
 
