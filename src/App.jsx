@@ -10,13 +10,13 @@ function App() {
       <Routes>
         <Route path="/" element={<Pages.LandingPage />} />
         <Route
-          path="/student-assessment"
+          path="/student-assessment/:userId"
           element={<Pages.StudentAssessment />}
         />
         <Route path="admin">
           <Route path="scores" element={<AuthGuard><Pages.Admin /></AuthGuard>} />
           <Route
-            path="student-breakdown"
+            path="student-breakdown/:userId"
             element={<AuthGuard><Pages.StudentBreakdown /></AuthGuard>}
           />
           <Route path="quiz-system" element={<AuthGuard><Pages.QuizSystem /></AuthGuard>} />
