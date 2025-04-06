@@ -48,3 +48,24 @@ export const userSchema = z.object({
     .min(1, { message: "Section is required" })
     .max(10, { message: "Section must be at most 10 characters long" }),
 });
+
+export const quizResultSchema = z.object({
+  user_id: z
+    .number()
+    .int()
+    .positive({ message: "User ID must be a positive integer" }),
+
+  assessment_number: z
+    .string()
+    .min(1, { message: "Assessment number is required" })
+    .max(50, { message: "Assessment number must be at most 50 characters long" }),
+
+  answers: z
+    .array(z.record(z.any()))
+    .nonempty({ message: "Answers must not be empty" }),
+
+  score: z
+    .number()
+    .int()
+    .min(0, { message: "Score must be at least 0" }),
+});
