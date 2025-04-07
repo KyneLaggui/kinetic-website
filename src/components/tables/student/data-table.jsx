@@ -19,19 +19,19 @@ import {
   getFacetedUniqueValues,
 } from "@tanstack/react-table";
 import DataTableToolbar from "./data-table-toolbar";
-import userData from "@/data/users";
+import useQuizResult from "@custom-hooks/useQuizResult";
 
 function DataTable({ columns }) {
   const [sorting, setSorting] = useState([]);
   const [columnFilters, setColumnFilters] = useState([]);
   const [data, setData] = useState([]);
 
-  useEffect(() => {
-    setData(userData);
-  }, []);
+   const { quizResults } = useQuizResult(null, true)
+
+   console.log(quizResults)
 
   const table = useReactTable({
-    data,
+    data: quizResults,
     columns,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
@@ -49,7 +49,7 @@ function DataTable({ columns }) {
 
   return (
     <div className="flex flex-col gap-4">
-      <DataTableToolbar table={table} allData={data} />
+      <DataTableToolbar table={table} allData={quizResults} />
       <div className="rounded-md border">
         <Table>
           <TableHeader>
@@ -95,7 +95,7 @@ function DataTable({ columns }) {
           </TableBody>
         </Table>
       </div>
-      <DataTablePagination table={table} />
+      {/* <DataTablePagination table={table} /> */}
     </div>
   );
 }

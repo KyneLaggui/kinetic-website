@@ -1,6 +1,9 @@
-import SearchBar from "@/layouts/SearchBar";
+import SearchBar from "@/layouts/SearchBar.tsx";
+import useUser from "@custom-hooks/useUser"; // Adjust path as needed
 
 export default function LandingPage() {
+  const { users, loading, error } = useUser();
+
   return (
     <div
       className="flex flex-col items-center justify-center p-4"
@@ -20,7 +23,8 @@ export default function LandingPage() {
           Kinetic Gloves with Haptic Feedback
         </p>
 
-        <SearchBar />
+        {/* Pass users as a prop */}
+        <SearchBar users={users} loading={loading} error={error} />
       </div>
     </div>
   );

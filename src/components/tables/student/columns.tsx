@@ -17,7 +17,9 @@ export const columns = [
       <p className="flex items-center gap-1 cursor-pointer">Avatar</p>
     ),
     cell: ({ row }) => {
-      const { name, avatarUrl } = row.original;
+      // const { name, avatarUrl } = row.original;
+      const name = row.original.user.first_name + " " + row.original.user.last_name;
+      const avatarUrl = "";
       const nameParts = name.split(" ");
       const initials =
         nameParts.length >= 2
@@ -37,10 +39,16 @@ export const columns = [
 
   {
     accessorKey: "name",
+    accessorFn: (row) => `${row.user.last_name}, ${row.user.first_name} ${row.user.middle_name}`,
+    id: "name", 
     header: () => (
       <p className="flex items-center gap-1 cursor-pointer">Full Name</p>
     ),
-    cell: ({ row }) => <TableCell>{row.original.name}</TableCell>,
+    cell: ({ row }) => {
+      const { first_name, last_name, middle_name } = row.original.user;
+
+     return <TableCell>{first_name} {middle_name} {last_name}</TableCell>
+    },
   },
 
   {
@@ -48,9 +56,11 @@ export const columns = [
     header: () => (
       <p className="flex items-center gap-1 cursor-pointer">Student ID</p>
     ),
-    cell: ({ row }) => (
-      <TableCell className="text-nowrap">{row.original.studentId}</TableCell>
-    ),
+    cell: ({ row }) => {
+      const { student_id: studentID } = row.original.user;
+
+      return (<TableCell className="text-nowrap">{studentID}</TableCell>)
+    }
   },
 
   {
@@ -58,11 +68,15 @@ export const columns = [
     header: () => (
       <p className="flex items-center gap-1 cursor-pointer">Section</p>
     ),
-    cell: ({ row }) => (
-      <TableCell>
-        <Badge className="text-nowrap">{row.original.section}</Badge>
-      </TableCell>
-    ),
+    cell: ({ row }) => {
+      const { year, section } = row.original.user;
+
+      return(
+        <TableCell>
+          <Badge className="text-nowrap">BSCPE {year}-{section}</Badge>
+        </TableCell>
+      )
+    },
   },
 
   {
@@ -71,12 +85,8 @@ export const columns = [
       <p className="flex items-center gap-1 cursor-pointer">Points</p>
     ),
     cell: ({ row }) => {
-      const totalScore = Object.values(row.original.scores).reduce(
-        (acc, assessment) => acc + assessment.score,
-        0
-      );
 
-      return <TableCell>{totalScore}</TableCell>;
+      return <TableCell>{row.original.score}</TableCell>;
     },
   },
 
@@ -89,7 +99,7 @@ export const columns = [
       const navigate = useNavigate(); // Get navigation function
 
       const handleClick = () => {
-        navigate(`/admin/student-breakdown`); // Redirect to student details page
+        navigate(`/admin/student-breakdown/${row.original.id}`); // Redirect to student details page
       };
 
       return (

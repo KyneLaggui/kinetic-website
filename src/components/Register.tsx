@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { supabase } from "@/lib/supabaseClient"; // Ensure you have supabaseClient configured
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -22,30 +21,19 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import useUser from "@/supabase/custom-hooks/useUser";
+import { userSchema } from "@validation";
+import { showNotification } from "@utils";
 
 // FormField Component
-function FormField({
-  label,
-  id,
-  placeholder,
-  required,
-  value,
-  onChange,
-  children,
-}) {
+function FormField({ label, id, placeholder, required, value, onChange, children }) {
   return (
     <div className="flex flex-col gap-2 w-full">
       <Label htmlFor={id}>
         {label} {required && <span className="text-red-500">*</span>}
       </Label>
       {children || (
-        <Input
-          id={id}
-          placeholder={placeholder}
-          required={required}
-          value={value}
-          onChange={onChange}
-        />
+        <Input id={id} placeholder={placeholder} required={required} value={value} onChange={onChange} />
       )}
     </div>
   );
@@ -53,6 +41,7 @@ function FormField({
 
 // Register Component
 export function Register() {
+  const { createUser } = useUser(); // Use the custom hook
   const [formData, setFormData] = useState({
     first_name: "",
     middle_name: "",
@@ -70,33 +59,37 @@ export function Register() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Check if required fields are filled
-    if (
-      !formData.first_name ||
-      !formData.last_name ||
-      !formData.student_id ||
-      !formData.year ||
-      !formData.section
-    ) {
-      alert("Please fill all required fields.");
+    // Validate form data with Zod
+    const validation = userSchema.safeParse(formData);
+
+    if (!validation.success) {
+      // Extract errors from ZodError
+      const formattedErrors = validation.error.errors
+        .map(err => `• ${err.message}`) // Add bullet points
+        .join('\n'); // Join with line breaks for readability
+    
+      showNotification('error', formattedErrors);
+    
       return;
     }
+    
+    // Call Supabase or API to submit the data
+    try {
+      const isSuccessful = await createUser(formData);
 
-    // Send data to Supabase
-
-    if (error) {
-      alert("Error registering student: " + error.message);
-    } else {
-      alert("Student registered successfully!");
-      setFormData({
-        first_name: "",
-        middle_name: "",
-        last_name: "",
-        suffix: "",
-        student_id: "",
-        year: "",
-        section: "",
-      });
+      if (isSuccessful) {
+        setFormData({
+          first_name: "",
+          middle_name: "",
+          last_name: "",
+          suffix: "",
+          student_id: "",
+          year: "",
+          section: "",
+        });
+      } 
+    } catch (err) {
+      console.error("Error submitting form:", err);
     }
   };
 
@@ -108,9 +101,7 @@ export function Register() {
       <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
           <DialogTitle>Register Student</DialogTitle>
-          <DialogDescription>
-            Register a new student to the system.
-          </DialogDescription>
+          <DialogDescription>Register a new student to the system.</DialogDescription>
         </DialogHeader>
 
         <ScrollArea className="max-h-[400px] sm:max-h-none">
@@ -163,11 +154,7 @@ export function Register() {
             {/* Year & Section */}
             <FormField label="Section" id="section" required>
               <div className="flex flex-row gap-2">
-                <Select
-                  onValueChange={(value) =>
-                    setFormData({ ...formData, year: value })
-                  }
-                >
+                <Select onValueChange={(value) => setFormData({ ...formData, year: value })}>
                   <SelectTrigger>
                     <SelectValue placeholder="Year" />
                   </SelectTrigger>
@@ -181,13 +168,7 @@ export function Register() {
                     </SelectGroup>
                   </SelectContent>
                 </Select>
-                <Input
-                  id="section"
-                  placeholder="3"
-                  required
-                  value={formData.section}
-                  onChange={handleChange}
-                />
+                <Input id="section" placeholder="3" required value={formData.section} onChange={handleChange} />
               </div>
             </FormField>
 

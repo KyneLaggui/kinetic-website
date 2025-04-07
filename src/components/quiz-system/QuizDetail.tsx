@@ -19,9 +19,9 @@ import { useNavigate, useParams } from "react-router-dom";
 import useQuiz from "@/supabase/custom-hooks/useQuiz";
 
 export default function QuizDetail() {
-  const { quizId } = useParams<{ quizId: string }>();
-  const { questions, createQuestion, updateQuestion, deleteQuestion, loading, error } = useQuestion(quizId);
-  const { quizzes, updateQuiz, deleteQuiz } = useQuiz(quizId)
+  const { assessmentId } = useParams<{ assessmentId: string }>();
+  const { questions, createQuestion, updateQuestion, deleteQuestion, loading, error } = useQuestion(assessmentId);
+  const { quizzes, updateQuiz, deleteQuiz } = useQuiz(assessmentId)
 
   const [studentResponses, setStudentResponses] = useState<StudentResponse[]>([/* sample data */]);
   const [openDrawer, setOpenDrawer] = useState<string | null>(null);
@@ -30,7 +30,7 @@ export default function QuizDetail() {
 
   const handleAddQuestion = async (newQuestionData: { title: string; choices: { choice: string; isAnswer: boolean }[] }) => {
     const correctAnswer = newQuestionData.choices.find((c) => c.isAnswer)?.choice || "";
-    await createQuestion(newQuestionData.title, newQuestionData.choices, correctAnswer, quizId);
+    await createQuestion(newQuestionData.title, newQuestionData.choices, correctAnswer, assessmentId);
   };
   
   const handleEditQuestion = async (updatedQuestion: Question) => {    
@@ -41,8 +41,8 @@ export default function QuizDetail() {
     await deleteQuestion(questionId);
   };
 
-  const handleDeleteQuiz = async (quizId: number) => {
-    const isSuccessful = await deleteQuiz(quizId);
+  const handleDeleteQuiz = async (assessmentId: string) => {
+    const isSuccessful = await deleteQuiz(assessmentId);
     if (isSuccessful) {
       navigate('/admin/quiz-system')
     }
@@ -61,7 +61,7 @@ export default function QuizDetail() {
       </Breadcrumb>
 
       {quizzes.length > 0 && (
-        <QuizHeader onUpdateQuiz={updateQuiz} onDeleteQuiz={handleDeleteQuiz} quizId={quizId} quiz={quizzes[0]} />
+        <QuizHeader onUpdateQuiz={updateQuiz} onDeleteQuiz={handleDeleteQuiz} assessmentId={assessmentId} quiz={quizzes[0]} />
       )}
 
       <Tabs defaultValue="quiz" className="w-full">

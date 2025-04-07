@@ -2,17 +2,17 @@ import { useState, useEffect } from 'react';
 import { supabase } from '../config';
 import { showNotification } from '@/lib/utils' 
 
-const useQuestion = (id) => {
+const useQuestion = (assessmentId) => {
   const [questions, setQuestions] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
   // Fetch all quizzes
-  const fetchQuestions = async (id) => {
+  const fetchQuestions = async (assessmentId) => {
     setLoading(true);
     setError(null);
     try {
-      const { data, error } = await supabase.from('question').select('*').eq('quiz_id', id); 
+      const { data, error } = await supabase.from('question').select('*').eq('assessment', assessmentId); 
       if (error) throw error;
       setQuestions(data);
     } catch (err) {
@@ -24,7 +24,7 @@ const useQuestion = (id) => {
 
   // Realtime subscription
   useEffect(() => {
-    fetchQuestions(id); // Initial fetch
+    fetchQuestions(assessmentId); // Initial fetch
 
     const subscription = supabase
       .channel('question-changes')
@@ -57,9 +57,9 @@ const useQuestion = (id) => {
   }, []);
 
   // Add a new quiz
-  const createQuestion = async (description, choices, answer, quizId) => {
+  const createQuestion = async (description, choices, answer, assessmentId) => {
     try {
-      const { error } = await supabase.from('question').insert([{ description, choices, "quiz_id": quizId }]);
+      const { error } = await supabase.from('question').insert([{ description, choices, "assessment": assessmentId }]);
       if (error) throw error;
       showNotification('success', 'Question added successfuly!')
       return true

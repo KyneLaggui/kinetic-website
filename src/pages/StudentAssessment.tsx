@@ -1,30 +1,70 @@
+import { useEffect, useState } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Trophy, Timer, Target, Award } from "lucide-react";
 import { motion } from "framer-motion";
-import SearchBar from "@/layouts/SearchBar";
+import SearchBar from "@/layouts/SearchBar.tsx";
+import useQuizResult from "@custom-hooks/useQuizResult"; // Import the custom hook
+import useUser from "@custom-hooks/useUser"; // Import the custom hook
+import { useParams } from 'react-router-dom';
+import { useMemo } from 'react';
 
 export default function GamifiedAssessmentDashboard() {
-  const studentId = "2021-12345-MN-0";
+  const { id } = useParams()
 
-  const assessments = [
-    {
-      id: 1,
-      title: "Laboratory 1: React Basics",
-      date: "2024-02-12",
-      score: 85,
-      duration: 45,
-    },
-    {
-      id: 2,
-      title: "Assessment 2: JavaScript Deep Dive",
-      date: "2024-02-10",
-      score: 92,
-      duration: 38,
-      xpEarned: 920,
-    },
-  ];
+  // Use the custom hook to fetch quiz results
+  const { quizResults, loading, error } = useQuizResult(id, false);
+  const { users } = useUser(id);
+  const user = users[0];
+
+  const studentId = "2021-12345-MN-0"
+
+  const [assessments, setAssessments] = useState([]);
+
+  // Populate the assessments array with data from quizResults
+  useEffect(() => {
+    if (quizResults.length > 0) {
+      const transformedAssessments = quizResults.map((result) => ({
+        id: result.id,
+        title: `Assessment ${result.assessment_number}: ${result.title}`,
+        date: result.created_at, // Assuming created_at is the date of the assessment
+        score: result.score,
+        duration: result.duration,
+        assessment_number: result.assessment_number.match(/\d+/)?.[0],
+        quiz: {
+          duration: result.quiz.duration,
+          title: result.quiz.title,
+          response: result.quiz.response,
+          assessment: result.quiz.assessment,
+        }, 
+        answers: result.answers,
+      }));
+      setAssessments(transformedAssessments);
+    }
+  }, [quizResults]);
+
+  const stats = useMemo(() => {
+    if (assessments.length === 0) return { best: 0, average: 0, completed: 0 };
+  
+    const percentageScores = assessments.map(
+      (a) => (a.score / a.answers.length) * 100
+    );
+  
+    const best = Math.max(...percentageScores);
+    const average =
+      percentageScores.reduce((sum, score) => sum + score, 0) /
+      percentageScores.length;
+  
+    return {
+      best: Math.round(best),
+      average: Math.round(average),
+      completed: assessments.length,
+    };
+  }, [assessments]);
+
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>Error: {error}</div>;
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-indigo-100 to-purple-100 px-4 sm:px-6 lg:px-8">
@@ -38,13 +78,13 @@ export default function GamifiedAssessmentDashboard() {
             <div className="relative">
               <Avatar className="h-20 w-20 sm:h-24 sm:w-24 border-4 border-purple-500 shadow-lg">
                 <AvatarFallback className="bg-gradient-to-br from-purple-500 to-blue-500 text-2xl text-white">
-                  {studentId.split("-")[3]}
+                  {/* {user?.student_id || studentId.split("-")[3]} */}
                 </AvatarFallback>
               </Avatar>
             </div>
             <div className="flex-1 text-center sm:text-left">
               <h1 className="text-xl sm:text-2xl font-bold text-gray-800">
-                {studentId}
+              {user?.student_id || studentId.split("-")[3]}
               </h1>
               <div className="flex justify-center sm:justify-start gap-2 mt-2 items-center">
                 <Badge
@@ -62,21 +102,21 @@ export default function GamifiedAssessmentDashboard() {
             <Card className="bg-gradient-to-br from-blue-50 to-purple-50 border-none">
               <CardContent className="p-4 text-center">
                 <Trophy className="w-6 h-6 text-yellow-500 mx-auto mb-2" />
-                <div className="text-2xl font-bold text-gray-800">92%</div>
+                <div className="text-2xl font-bold text-gray-800">{stats.best}%</div>
                 <div className="text-sm text-gray-600">Best Score</div>
               </CardContent>
             </Card>
             <Card className="bg-gradient-to-br from-green-50 to-blue-50 border-none">
               <CardContent className="p-4 text-center">
                 <Target className="w-6 h-6 text-green-500 mx-auto mb-2" />
-                <div className="text-2xl font-bold text-gray-800">85%</div>
+                <div className="text-2xl font-bold text-gray-800">{stats.average}%</div>
                 <div className="text-sm text-gray-600">Avg Score</div>
               </CardContent>
             </Card>
             <Card className="bg-gradient-to-br from-orange-50 to-yellow-50 border-none">
               <CardContent className="p-4 text-center">
                 <Award className="w-6 h-6 text-orange-500 mx-auto mb-2" />
-                <div className="text-2xl font-bold text-gray-800">6</div>
+                <div className="text-2xl font-bold text-gray-800">{stats.completed}</div>
                 <div className="text-sm text-gray-600">Completed</div>
               </CardContent>
             </Card>
@@ -100,25 +140,25 @@ export default function GamifiedAssessmentDashboard() {
                   <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                     <div className="flex items-center gap-4">
                       <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center font-bold text-white text-lg shadow-lg shrink-0">
-                        #{assessment.id}
+                        #{assessment?.assessment_number}
                       </div>
                       <div>
                         <h3 className="font-bold text-gray-800">
-                          {assessment.title}
+                          {assessment?.quiz.title}
                         </h3>
                         <div className="flex items-center gap-2 text-sm text-gray-500">
                           <Timer className="w-4 h-4" />
-                          {assessment.duration} min
+                          {assessment?.quiz.duration} min
                         </div>
                       </div>
                     </div>
-                    <div className="flex justify-between sm:flex-col items-center sm:text-right w-full sm:w-auto">
-                      <div className="text-2xl font-bold text-purple-600">
-                        8/10
-                      </div>
-                      <div className="text-sm text-muted-foreground">
-                        <Badge variant="outline">{assessment.score}%</Badge>
-                      </div>
+                    <div className="text-2xl font-bold text-purple-600">
+                      {assessment.score}/{assessment?.answers.length}
+                    </div>
+                    <div className="text-sm text-muted-foreground">
+                      <Badge variant="outline">
+                        {Math.round((assessment.score / assessment.answers.length) * 100)}%
+                      </Badge>
                     </div>
                   </div>
                 </CardContent>
