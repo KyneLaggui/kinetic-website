@@ -11,11 +11,10 @@ import { useParams } from 'react-router-dom';
 import { useMemo } from 'react';
 
 export default function GamifiedAssessmentDashboard() {
-  const { id } = useParams()
-
+  const { userId } = useParams()
   // Use the custom hook to fetch quiz results
-  const { quizResults, loading, error } = useQuizResult(id, false);
-  const { users } = useUser(id);
+  const { quizResults, loading, error } = useQuizResult(userId, false);
+  const { users } = useUser(userId);
   const user = users[0];
 
   const studentId = "2021-12345-MN-0"

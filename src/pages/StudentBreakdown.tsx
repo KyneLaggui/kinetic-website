@@ -23,8 +23,10 @@ import {
 } from "@/components/ui/drawer";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { useParams } from "react-router-dom";
 
-export default function StudentBreakdown({ userId }) {
+export default function StudentBreakdown() {
+  const { userId } = useParams();
   const { quizResults, isLoading } = useQuizResult(userId, true);
   const [selectedAssessment, setSelectedAssessment] = useState(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
