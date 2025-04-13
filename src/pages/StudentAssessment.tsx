@@ -56,14 +56,14 @@ export default function GamifiedAssessmentDashboard() {
   
       const transformedAssessment4 = {
         id: "a4-combined",
-        title: "Assessment 4: Subnetting & VLSM Table",
+        title: "Module 4",
         date: mostRecentDate,
         score: totalAssessment4Score,
         duration: 25,
         assessment_number: "4",
         quiz: {
           duration: 25,
-          title: "Assessment 4: Subnetting & VLSM Table",
+          title: "Module 4",
           response: [],
           assessment: [],
         },
