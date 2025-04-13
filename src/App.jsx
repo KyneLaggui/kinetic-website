@@ -1,4 +1,4 @@
-import Pages from "@/pages/pages";
+import Pages from "@/pages/Pages";
 import { Route, Routes } from "react-router-dom";
 import Header from "@/layouts/Header";
 import AuthGuard from "@/components/auth/AuthGuard";
