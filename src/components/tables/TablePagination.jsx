@@ -15,8 +15,8 @@ import {
 
 export function DataTablePagination({ table }) {
   return (
-    <div className="flex items-center place-content-end px-2">
-      <div className="flex items-center space-x-3 phone:space-x-6 lg:space-x-8 place-content-end">
+    <div className="flex items-center place-content-end px-2 pb-4">
+      <div className="flex items-center space-x-3 phone:space-x-6 lg:space-x-8 place-content-end ">
         <div className="flex items-center space-x-2">
           <p className="text-sm font-medium">Rows per page</p>
           <Select
