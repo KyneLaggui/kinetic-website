@@ -82,50 +82,52 @@ const Header = () => {
           </div>
 
           {/* Mobile menu button */}
-          <div className="md:hidden">
-            <Sheet open={open} onOpenChange={setOpen}>
-              <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" className="relative">
-                  <span className="sr-only">Open main menu</span>
-                  {open ? (
-                    <X className="h-6 w-6" aria-hidden="true" />
-                  ) : (
-                    <Menu className="h-6 w-6" aria-hidden="true" />
-                  )}
-                </Button>
-              </SheetTrigger>
-              <SheetContent side="right" className="w-[300px] sm:w-[400px]">
-                <div className="flex flex-col h-full">
-                  <div className="px-4 pt-5 pb-4 sm:px-6">
-                    <span className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 text-transparent bg-clip-text">
-                      Ki<span className="text-pink-600">Net</span>Ic
-                    </span>
+          <ProtectedComponent>
+            <div className="md:hidden">
+              <Sheet open={open} onOpenChange={setOpen}>
+                <SheetTrigger asChild>
+                  <Button variant="ghost" size="icon" className="relative">
+                    <span className="sr-only">Open main menu</span>
+                    {open ? (
+                      <X className="h-6 w-6" aria-hidden="true" />
+                    ) : (
+                      <Menu className="h-6 w-6" aria-hidden="true" />
+                    )}
+                  </Button>
+                </SheetTrigger>
+                <SheetContent side="right" className="w-[300px] sm:w-[400px]">
+                  <div className="flex flex-col h-full">
+                    <div className="px-4 pt-5 pb-4 sm:px-6">
+                      <span className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 text-transparent bg-clip-text">
+                        Ki<span className="text-pink-600">Net</span>Ic
+                      </span>
+                    </div>
+                    <div className="flex-grow px-4 pt-2 pb-3 space-y-1">
+                      {navItems.map((item) => (
+                        <NavLink
+                          key={item.path}
+                          to={item.path}
+                          className={({ isActive }) =>
+                            `block px-3 py-2 rounded-md text-base font-medium ${
+                              isActive
+                                ? "text-purple-600 bg-purple-50"
+                                : "text-gray-700 hover:text-purple-600 hover:bg-purple-50"
+                            }`
+                          }
+                          onClick={() => setOpen(false)}
+                        >
+                          {item.name}
+                        </NavLink>
+                      ))}
+                    </div>
+                    <div className="px-4 py-4 border-t border-gray-200">
+                      <LoginLogoutDialog variant={userState ? "logout" : "login"}/>
+                    </div>
                   </div>
-                  <div className="flex-grow px-4 pt-2 pb-3 space-y-1">
-                    {navItems.map((item) => (
-                      <NavLink
-                        key={item.path}
-                        to={item.path}
-                        className={({ isActive }) =>
-                          `block px-3 py-2 rounded-md text-base font-medium ${
-                            isActive
-                              ? "text-purple-600 bg-purple-50"
-                              : "text-gray-700 hover:text-purple-600 hover:bg-purple-50"
-                          }`
-                        }
-                        onClick={() => setOpen(false)}
-                      >
-                        {item.name}
-                      </NavLink>
-                    ))}
-                  </div>
-                  <div className="px-4 py-4 border-t border-gray-200">
-                    <LoginLogoutDialog variant={userState ? "logout" : "login"}/>
-                  </div>
-                </div>
-              </SheetContent>
-            </Sheet>
-          </div>
+                </SheetContent>
+              </Sheet>
+            </div>
+          </ProtectedComponent>
         </div>
       </div>
     </header>
