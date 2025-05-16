@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -6,21 +6,21 @@ import { Trophy, Timer, Target, Award } from "lucide-react";
 import { motion } from "framer-motion";
 import SearchBar from "@/layouts/SearchBar.tsx";
 import useQuizResult from "@custom-hooks/useQuizResult"; // Import the custom hook
-import useAssessment4Result from '@custom-hooks/useAssessment4Result';
+import useAssessment4Result from "@custom-hooks/useAssessment4Result";
 import useUser from "@custom-hooks/useUser"; // Import the custom hook
-import { useParams } from 'react-router-dom';
-import { useMemo } from 'react';
-
+import { useParams } from "react-router-dom";
+import { useMemo } from "react";
+import { LoadingSpinner } from "@/components/LoadingSpinner";
 
 export default function GamifiedAssessmentDashboard() {
-  const { userId } = useParams()
+  const { userId } = useParams();
   // Use the custom hook to fetch quiz results
   const { quizResults, loading, error } = useQuizResult(userId, false);
   const { results: assessment4Results } = useAssessment4Result(userId);
   const { users } = useUser(userId);
   const user = users[0];
 
-  const studentId = "2021-12345-MN-0"
+  const studentId = "2021-12345-MN-0";
 
   const [assessments, setAssessments] = useState([]);
 
@@ -42,18 +42,19 @@ export default function GamifiedAssessmentDashboard() {
         },
         answers: result.answers,
       }));
-  
+
       // ✅ Sum ALL scores from assessment4Results (no filtering)
       const totalAssessment4Score = assessment4Results.reduce(
         (sum, entry) => sum + entry.score,
         0
       );
-  
+
       const mostRecentDate =
         assessment4Results.sort(
-          (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+          (a, b) =>
+            new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
         )[0]?.created_at ?? new Date().toISOString();
-  
+
       const transformedAssessment4 = {
         id: "a4-combined",
         title: "Module 4",
@@ -69,7 +70,7 @@ export default function GamifiedAssessmentDashboard() {
         },
         answers: Array(25).fill({}), // Optional placeholder for completeness
       };
-  
+
       const combined = [...transformedQuizAssessments, transformedAssessment4];
       setAssessments(combined);
     }
@@ -77,15 +78,18 @@ export default function GamifiedAssessmentDashboard() {
 
   const stats = useMemo(() => {
     if (assessments.length === 0) return { best: 0, average: 0, completed: 0 };
-  
+
     const totalScore = assessments.reduce((sum, a) => sum + a.score, 0);
-    const totalPossible = assessments.reduce((sum, a) => sum + a.answers.length, 0);
-  
+    const totalPossible = assessments.reduce(
+      (sum, a) => sum + a.answers.length,
+      0
+    );
+
     const best = Math.max(
       ...assessments.map((a) => (a.score / a.answers.length) * 100)
     );
     const average = totalPossible > 0 ? (totalScore / totalPossible) * 100 : 0;
-  
+
     return {
       best: Math.round(best),
       average: Math.round(average),
@@ -93,7 +97,7 @@ export default function GamifiedAssessmentDashboard() {
     };
   }, [assessments]);
 
-  if (loading) return <div>Loading...</div>;
+  if (loading) return <LoadingSpinner />;
   if (error) return <div>Error: {error}</div>;
 
   return (
@@ -114,7 +118,7 @@ export default function GamifiedAssessmentDashboard() {
             </div>
             <div className="flex-1 text-center sm:text-left">
               <h1 className="text-xl sm:text-2xl font-bold text-gray-800">
-              {user?.student_id || studentId.split("-")[3]}
+                {user?.student_id || studentId.split("-")[3]}
               </h1>
               <div className="flex justify-center sm:justify-start gap-2 mt-2 items-center">
                 <Badge
@@ -132,21 +136,27 @@ export default function GamifiedAssessmentDashboard() {
             <Card className="bg-gradient-to-br from-blue-50 to-purple-50 border-none">
               <CardContent className="p-4 text-center">
                 <Trophy className="w-6 h-6 text-yellow-500 mx-auto mb-2" />
-                <div className="text-2xl font-bold text-gray-800">{stats.best}%</div>
+                <div className="text-2xl font-bold text-gray-800">
+                  {stats.best}%
+                </div>
                 <div className="text-sm text-gray-600">Best Score</div>
               </CardContent>
             </Card>
             <Card className="bg-gradient-to-br from-green-50 to-blue-50 border-none">
               <CardContent className="p-4 text-center">
                 <Target className="w-6 h-6 text-green-500 mx-auto mb-2" />
-                <div className="text-2xl font-bold text-gray-800">{stats.average}%</div>
+                <div className="text-2xl font-bold text-gray-800">
+                  {stats.average}%
+                </div>
                 <div className="text-sm text-gray-600">Avg Score</div>
               </CardContent>
             </Card>
             <Card className="bg-gradient-to-br from-orange-50 to-yellow-50 border-none">
               <CardContent className="p-4 text-center">
                 <Award className="w-6 h-6 text-orange-500 mx-auto mb-2" />
-                <div className="text-2xl font-bold text-gray-800">{stats.completed}</div>
+                <div className="text-2xl font-bold text-gray-800">
+                  {stats.completed}
+                </div>
                 <div className="text-sm text-gray-600">Completed</div>
               </CardContent>
             </Card>
@@ -187,7 +197,10 @@ export default function GamifiedAssessmentDashboard() {
                     </div>
                     <div className="text-sm text-muted-foreground">
                       <Badge variant="outline">
-                        {Math.round((assessment.score / assessment.answers.length) * 100)}%
+                        {Math.round(
+                          (assessment.score / assessment.answers.length) * 100
+                        )}
+                        %
                       </Badge>
                     </div>
                   </div>

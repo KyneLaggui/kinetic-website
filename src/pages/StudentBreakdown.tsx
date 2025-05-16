@@ -24,6 +24,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useParams } from "react-router-dom";
+import { LoadingSpinner } from "@/components/LoadingSpinner";
 
 export default function StudentBreakdown() {
   const { userId } = useParams();
@@ -31,7 +32,7 @@ export default function StudentBreakdown() {
   const [selectedAssessment, setSelectedAssessment] = useState(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
-  if (isLoading) return <p>Loading...</p>;
+  if (isLoading) return <LoadingSpinner />;
   if (!quizResults.length) return <p>No quiz results found.</p>;
 
   const student = quizResults[0]?.user;
@@ -60,7 +61,9 @@ export default function StudentBreakdown() {
             <ChevronRight className="h-4 w-4" />
           </BreadcrumbSeparator>
           <BreadcrumbItem>
-            <BreadcrumbPage>{student?.first_name} {student?.last_name}</BreadcrumbPage>
+            <BreadcrumbPage>
+              {student?.first_name} {student?.last_name}
+            </BreadcrumbPage>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
@@ -69,7 +72,9 @@ export default function StudentBreakdown() {
         <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4">
           <Avatar className="h-20 w-20">
             <AvatarImage src="" alt={student?.first_name} />
-            <AvatarFallback>{getInitials(student?.first_name + " " + student?.last_name)}</AvatarFallback>
+            <AvatarFallback>
+              {getInitials(student?.first_name + " " + student?.last_name)}
+            </AvatarFallback>
           </Avatar>
 
           <div className="space-y-2 text-center sm:text-left">
@@ -109,13 +114,22 @@ export default function StudentBreakdown() {
                       {assessment.score}/{assessment.answers.length}
                     </div>
                     <div className="text-base sm:text-lg text-muted-foreground">
-                      {calculatePercentage(assessment.score, assessment.answers.length)}%
+                      {calculatePercentage(
+                        assessment.score,
+                        assessment.answers.length
+                      )}
+                      %
                     </div>
                   </div>
                   <div className="h-2 bg-muted rounded-full overflow-hidden">
                     <div
                       className="h-full bg-primary"
-                      style={{ width: `${calculatePercentage(assessment.score, assessment.answers.length)}%` }}
+                      style={{
+                        width: `${calculatePercentage(
+                          assessment.score,
+                          assessment.answers.length
+                        )}%`,
+                      }}
                     />
                   </div>
                 </div>
@@ -132,8 +146,13 @@ export default function StudentBreakdown() {
               {getSelectedAssessment()?.assessment_number} Results
             </DrawerTitle>
             <DrawerDescription>
-              Score: {getSelectedAssessment()?.score}/{getSelectedAssessment()?.answers.length} (
-              {calculatePercentage(getSelectedAssessment()?.score || 0, getSelectedAssessment()?.answers.length || 1)}%)
+              Score: {getSelectedAssessment()?.score}/
+              {getSelectedAssessment()?.answers.length} (
+              {calculatePercentage(
+                getSelectedAssessment()?.score || 0,
+                getSelectedAssessment()?.answers.length || 1
+              )}
+              %)
             </DrawerDescription>
           </DrawerHeader>
           <ScrollArea className="h-[60vh] sm:h-[70vh]">
@@ -141,14 +160,31 @@ export default function StudentBreakdown() {
               {getSelectedAssessment()?.answers.map((question, qIndex) => (
                 <div key={qIndex} className="space-y-4">
                   <h3 className="text-sm sm:text-base font-medium flex items-start gap-2">
-                    <span className={`w-6 h-6 flex items-center justify-center rounded-full text-white ${question.selected_answer === question.correct_answer ? "bg-green-500" : "bg-red-500"}`}>
+                    <span
+                      className={`w-6 h-6 flex items-center justify-center rounded-full text-white ${
+                        question.selected_answer === question.correct_answer
+                          ? "bg-green-500"
+                          : "bg-red-500"
+                      }`}
+                    >
                       {qIndex + 1}
                     </span>
                     {question.question}
                   </h3>
                   <div className="grid gap-2">
                     {question.choices.map((choice, cIndex) => (
-                      <div key={cIndex} className={`p-3 sm:p-4 rounded-lg border ${choice === question.selected_answer ? (choice === question.correct_answer ? "bg-green-100 border-green-500" : "bg-red-100 border-red-500") : choice === question.correct_answer ? "border-green-500 bg-green-100" : "border-gray-300"}`}>
+                      <div
+                        key={cIndex}
+                        className={`p-3 sm:p-4 rounded-lg border ${
+                          choice === question.selected_answer
+                            ? choice === question.correct_answer
+                              ? "bg-green-100 border-green-500"
+                              : "bg-red-100 border-red-500"
+                            : choice === question.correct_answer
+                            ? "border-green-500 bg-green-100"
+                            : "border-gray-300"
+                        }`}
+                      >
                         {choice}
                       </div>
                     ))}
