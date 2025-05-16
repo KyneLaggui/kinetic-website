@@ -6,16 +6,18 @@ import { Trophy, Timer, Target, Award } from "lucide-react";
 import { motion } from "framer-motion";
 import SearchBar from "@/layouts/SearchBar.tsx";
 import useQuizResult from "@custom-hooks/useQuizResult"; // Import the custom hook
+import useAssessment4Result from '@custom-hooks/useAssessment4Result';
 import useUser from "@custom-hooks/useUser"; // Import the custom hook
 import { useParams } from 'react-router-dom';
 import { useMemo } from 'react';
 
-export default function GamifiedAssessmentDashboard() {
-  const { id } = useParams()
 
+export default function GamifiedAssessmentDashboard() {
+  const { userId } = useParams()
   // Use the custom hook to fetch quiz results
-  const { quizResults, loading, error } = useQuizResult(id, false);
-  const { users } = useUser(id);
+  const { quizResults, loading, error } = useQuizResult(userId, false);
+  const { results: assessment4Results } = useAssessment4Result(userId);
+  const { users } = useUser(userId);
   const user = users[0];
 
   const studentId = "2021-12345-MN-0"
@@ -24,11 +26,11 @@ export default function GamifiedAssessmentDashboard() {
 
   // Populate the assessments array with data from quizResults
   useEffect(() => {
-    if (quizResults.length > 0) {
-      const transformedAssessments = quizResults.map((result) => ({
+    if (quizResults.length > 0 || assessment4Results.length > 0) {
+      const transformedQuizAssessments = quizResults.map((result) => ({
         id: result.id,
         title: `Assessment ${result.assessment_number}: ${result.title}`,
-        date: result.created_at, // Assuming created_at is the date of the assessment
+        date: result.created_at,
         score: result.score,
         duration: result.duration,
         assessment_number: result.assessment_number.match(/\d+/)?.[0],
@@ -37,24 +39,52 @@ export default function GamifiedAssessmentDashboard() {
           title: result.quiz.title,
           response: result.quiz.response,
           assessment: result.quiz.assessment,
-        }, 
+        },
         answers: result.answers,
       }));
-      setAssessments(transformedAssessments);
+  
+      // ✅ Sum ALL scores from assessment4Results (no filtering)
+      const totalAssessment4Score = assessment4Results.reduce(
+        (sum, entry) => sum + entry.score,
+        0
+      );
+  
+      const mostRecentDate =
+        assessment4Results.sort(
+          (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+        )[0]?.created_at ?? new Date().toISOString();
+  
+      const transformedAssessment4 = {
+        id: "a4-combined",
+        title: "Module 4",
+        date: mostRecentDate,
+        score: totalAssessment4Score,
+        duration: 25,
+        assessment_number: "4",
+        quiz: {
+          duration: 25,
+          title: "Module 4",
+          response: [],
+          assessment: [],
+        },
+        answers: Array(25).fill({}), // Optional placeholder for completeness
+      };
+  
+      const combined = [...transformedQuizAssessments, transformedAssessment4];
+      setAssessments(combined);
     }
-  }, [quizResults]);
+  }, [quizResults, assessment4Results]);
 
   const stats = useMemo(() => {
     if (assessments.length === 0) return { best: 0, average: 0, completed: 0 };
   
-    const percentageScores = assessments.map(
-      (a) => (a.score / a.answers.length) * 100
-    );
+    const totalScore = assessments.reduce((sum, a) => sum + a.score, 0);
+    const totalPossible = assessments.reduce((sum, a) => sum + a.answers.length, 0);
   
-    const best = Math.max(...percentageScores);
-    const average =
-      percentageScores.reduce((sum, score) => sum + score, 0) /
-      percentageScores.length;
+    const best = Math.max(
+      ...assessments.map((a) => (a.score / a.answers.length) * 100)
+    );
+    const average = totalPossible > 0 ? (totalScore / totalPossible) * 100 : 0;
   
     return {
       best: Math.round(best),

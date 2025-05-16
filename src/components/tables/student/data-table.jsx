@@ -95,7 +95,7 @@ function DataTable({ columns }) {
           </TableBody>
         </Table>
       </div>
-      {/* <DataTablePagination table={table} /> */}
+      <DataTablePagination table={table} />
     </div>
   );
 }

@@ -69,3 +69,30 @@ export const quizResultSchema = z.object({
     .int()
     .min(0, { message: "Score must be at least 0" }),
 });
+
+
+export const assessment4ResultSchema = z.object({
+  id: z
+    .number()
+    .int()
+    .positive({ message: "ID must be a positive integer" }),
+
+  created_at: z
+    .string()
+    .datetime({ message: "Invalid date format for created_at" }),
+
+  lesson_number: z
+    .number()
+    .int()
+    .positive({ message: "Lesson number must be a positive integer" }),
+
+  socre: z
+    .number()
+    .int()
+    .min(0, { message: "Score must be at least 0" }),
+
+  user_id: z
+    .number()
+    .int()
+    .positive({ message: "User ID must be a positive integer" }),
+});
