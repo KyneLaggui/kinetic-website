@@ -78,14 +78,13 @@ export default function GamifiedAssessmentDashboard() {
   const stats = useMemo(() => {
     if (assessments.length === 0) return { best: 0, average: 0, completed: 0 };
   
-    const percentageScores = assessments.map(
-      (a) => (a.score / a.answers.length) * 100
-    );
+    const totalScore = assessments.reduce((sum, a) => sum + a.score, 0);
+    const totalPossible = assessments.reduce((sum, a) => sum + a.answers.length, 0);
   
-    const best = Math.max(...percentageScores);
-    const average =
-      percentageScores.reduce((sum, score) => sum + score, 0) /
-      percentageScores.length;
+    const best = Math.max(
+      ...assessments.map((a) => (a.score / a.answers.length) * 100)
+    );
+    const average = totalPossible > 0 ? (totalScore / totalPossible) * 100 : 0;
   
     return {
       best: Math.round(best),
