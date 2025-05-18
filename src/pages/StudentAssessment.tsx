@@ -86,11 +86,10 @@ export default function GamifiedAssessmentDashboard() {
     );
 
     const best = Math.max(
-      ...assessments.map((a) => ((a.score / a.answers.length) * 50) + 50) 
+      ...assessments.map((a) => (((a.score / a.answers.length) * 50) + 50))
     );
-    const average = totalPossible > 0 ? ((totalScore / totalPossible) * 50) + 50: 0;
-    
-  
+    const average = totalPossible > 0 ? ((totalScore / totalPossible) * 50) + 50 : 0;
+
     return {
       best: Math.round(best),
       average: Math.round(average),
@@ -198,7 +197,10 @@ export default function GamifiedAssessmentDashboard() {
                     </div>
                     <div className="text-sm text-muted-foreground">
                       <Badge variant="outline">
-                        {Math.round((assessment.score / assessment.answers.length) * 100)}%
+                        {Math.round(
+                          ((assessment.score / assessment.answers.length) * 50) +50
+                        )}
+                        %
                       </Badge>
                     </div>
                   </div>
