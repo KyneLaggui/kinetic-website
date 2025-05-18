@@ -30,10 +30,13 @@ import {
 } from "@/components/ui/select";
 import { quizSchema } from "@/lib/validation";
 import useQuiz from "../supabase/custom-hooks/useQuiz";
+import useQuizResult from "@/supabase/custom-hooks/useQuizResult";
+
 
 export default function QuizSystem() {
   const navigate = useNavigate();
   const { quizzes, createQuiz } = useQuiz();
+  const { fetchByAssessmentNumber } = useQuizResult();
 
   const handleNavigate = (assessmentId) => {
     navigate(`/admin/quiz-detail/${assessmentId}`);
@@ -43,6 +46,8 @@ export default function QuizSystem() {
   const [newQuizDuration, setNewQuizDuration] = useState("");
   const [newQuizAssessment, setNewQuizAssessment] = useState("");
   const [usedAssessments, setUsedAssessments] = useState(new Set());
+  const [responseCounts, setResponseCounts] = useState({});
+  
   const assessments = ["Assessment 1", "Assessment 2", "Assessment 3"];
 
   const handleCreateQuiz = async() => {    
@@ -54,14 +59,31 @@ export default function QuizSystem() {
       setNewQuizAssessment("");
       setNewQuizDuration("");
     }     
-
   };
 
   useEffect(() => {
     const usedAssessments = new Set(quizzes.map((quiz) => quiz.assessment));
     setUsedAssessments(usedAssessments);
-  }, [quizzes])
-
+  
+    // Fetch responses for each quiz
+    const loadResponseCounts = async () => {
+      const counts = {};
+      for (const quiz of quizzes) {
+        try {
+          const responses = await fetchByAssessmentNumber(quiz.assessment);
+          counts[quiz.assessment] = responses.length;
+        } catch (err) {
+          console.error(`Failed to fetch responses for ${quiz.assessment}`, err);
+          counts[quiz.assessment] = 0;
+        }
+      }
+      setResponseCounts(counts);
+    };
+  
+    if (quizzes.length > 0) {
+      loadResponseCounts();
+    }
+  }, [quizzes]);  
 
   return (
     <div className="container mx-auto py-6">
@@ -152,11 +174,11 @@ export default function QuizSystem() {
             <CardContent>
               <div className="flex items-center justify-between">
                 <Badge variant="secondary">
-                  <Badge variant="secondary">
-                    {quiz.responses
-                      ? `${quiz.responses} Responses`
-                      : "No responses"}
-                  </Badge>
+                <Badge variant="secondary">
+                  {responseCounts[quiz.assessment] > 0
+                    ? `${responseCounts[quiz.assessment]} Responses`
+                    : "No responses"}
+                </Badge>
                 </Badge>
               </div>
             </CardContent>

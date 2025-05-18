@@ -49,6 +49,7 @@ const useUser = (id?: number): UseUserResult => {
       setLoading(false);
     }
   };
+  
 
   useEffect(() => {
     fetchUsers();
@@ -129,6 +130,22 @@ const useUser = (id?: number): UseUserResult => {
     }
   };
 
+  const fetchUserById = async (userId: number): Promise<User | null> => {
+    try {
+      const { data, error } = await supabase
+        .from('user')
+        .select('*')
+        .eq('id', userId)
+        .single();
+  
+      if (error) throw error;
+      return data as User;
+    } catch (err) {
+      console.error(`Error fetching user ${userId}:`, err);
+      return null;
+    }
+  };
+
   return {
     users,
     loading,
@@ -136,6 +153,7 @@ const useUser = (id?: number): UseUserResult => {
     createUser,
     updateUser,
     deleteUser,
+    fetchUserById,
   };
 };
 

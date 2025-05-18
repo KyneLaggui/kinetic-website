@@ -10,7 +10,6 @@ const useQuizResult = (userId = null, fetchUserDetails = false) => {
 
   // Fetch all quiz results
   const fetchQuizResults = async (userId) => {
-    console.log(userId);
     setLoading(true);
     setError(null);
     try {
@@ -24,7 +23,6 @@ const useQuizResult = (userId = null, fetchUserDetails = false) => {
       }
   
       const { data, error } = await query;
-      console.log(data);
       if (error) throw error;
       setQuizResults(data);
     } catch (err) {
@@ -33,7 +31,22 @@ const useQuizResult = (userId = null, fetchUserDetails = false) => {
       setLoading(false);
     }
   };
-  
+
+  // Inside useQuizResult
+  const fetchByAssessmentNumber = async (assessmentNumber) => {
+    try {
+      const { data, error } = await supabase
+        .from('quiz_result')
+        .select('*')
+        .eq('assessment_number', assessmentNumber);
+
+      if (error) throw error;
+      return data;
+    } catch (err) {
+      throw new Error(err.message);
+    }
+  };
+
 
   // Realtime subscription
   useEffect(() => {
@@ -140,6 +153,7 @@ const useQuizResult = (userId = null, fetchUserDetails = false) => {
     createQuizResult,
     updateQuizResult,
     deleteQuizResult,
+    fetchByAssessmentNumber,
   };
 };
 
