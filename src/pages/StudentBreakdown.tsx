@@ -42,7 +42,7 @@ export default function StudentBreakdown() {
   };
 
   const calculatePercentage = (score, total) => {
-    return ((score / total) * 100).toFixed(1);
+    return (((score / total) * 50) + 50).toFixed(1);
   };
 
   const getInitials = (name) => {
