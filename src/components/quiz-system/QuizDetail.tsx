@@ -17,13 +17,17 @@ import { ChevronRight } from "lucide-react";
 import useQuestion from "@/supabase/custom-hooks/useQuestion";
 import { useNavigate, useParams } from "react-router-dom";
 import useQuiz from "@/supabase/custom-hooks/useQuiz";
+import useQuizResult from "@/supabase/custom-hooks/useQuizResult";
+import useUser from "@/supabase/custom-hooks/useUser";
 
 export default function QuizDetail() {
   const { assessmentId } = useParams<{ assessmentId: string }>();
   const { questions, createQuestion, updateQuestion, deleteQuestion, loading, error } = useQuestion(assessmentId);
   const { quizzes, updateQuiz, deleteQuiz } = useQuiz(assessmentId)
+  const { fetchByAssessmentNumber } = useQuizResult();
+  const { fetchUserById } = useUser();
 
-  const [studentResponses, setStudentResponses] = useState<StudentResponse[]>([/* sample data */]);
+  const [studentResponses, setStudentResponses] = useState<StudentResponse[]>([]);
   const [openDrawer, setOpenDrawer] = useState<string | null>(null);
 
   const navigate = useNavigate()
@@ -48,6 +52,39 @@ export default function QuizDetail() {
     }
   }
 
+  useEffect(() => {
+    const fetchStudentResponses = async () => {
+      if (quizzes.length === 0) return;
+
+      const currentAssessment = quizzes[0].assessment;
+
+      try {
+        const rawResponses = await fetchByAssessmentNumber(currentAssessment);
+
+        // Fetch user info for each response concurrently
+        const enhancedResponses = await Promise.all(
+          rawResponses.map(async (res) => {
+            const user = await fetchUserById(res.user_id);
+
+            return {
+              ...res,
+              name: user
+                ? `${user.first_name} ${user.last_name}`
+                : `User ${res.user_id}`,
+              studentId: user?.student_id || res.user_id,
+            };
+          })
+        );
+
+        setStudentResponses(enhancedResponses);
+      } catch (err) {
+        console.error("Failed to fetch student responses:", err.message);
+      }
+    };
+
+    fetchStudentResponses();
+  }, [quizzes]);
+  
   return (
     <div className="container mx-auto py-6">
       <Breadcrumb className="mb-4">
