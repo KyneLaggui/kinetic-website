@@ -104,7 +104,6 @@ export default function QuizDetail() {
       <Tabs defaultValue="quiz" className="w-full">
         <TabsList className="mb-4">
           <TabsTrigger value="quiz">Quiz</TabsTrigger>
-          <TabsTrigger value="responses">Responses</TabsTrigger>
         </TabsList>
 
         <TabsContent value="quiz" className="space-y-4">
@@ -119,28 +118,6 @@ export default function QuizDetail() {
               index={index}
               onEditQuestion={handleEditQuestion}
               onDeleteQuestion={handleDeleteQuestion}
-            />
-          ))}
-        </TabsContent>
-
-        <TabsContent value="responses">
-          <div className="space-y-4">
-            {studentResponses.map((response) => (
-              <StudentResponseCard
-                key={response.id}
-                response={response}
-                onClick={() => setOpenDrawer(response.id)}
-              />
-            ))}
-          </div>
-
-          {studentResponses.map((response) => (
-            <ResponseDrawer
-              key={response.id}
-              response={response}
-              questions={questions}
-              open={openDrawer === response.id}
-              onOpenChange={(open) => setOpenDrawer(open ? response.id : null)}
             />
           ))}
         </TabsContent>
