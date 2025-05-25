@@ -28,15 +28,27 @@ import { useAuth } from "../supabase/custom-hooks/useAuth.tsx";
 import { loginSchema } from "@/lib/validation";
 import ProtectedComponent from "@/components/auth/ProtectedComponent"
 import { showNotification } from "@utils";
+import { useLocation } from "react-router-dom";
 
 const navItems = [
-  { name: "Scores", path: "/admin/scores" },
-  { name: "Quizzes", path: "/admin/quiz-system" },
+  {
+    name: "Scores",
+    path: "/admin/scores",
+    activePaths: ["/admin/scores", "/admin/quiz-scores/", "/admin/student-breakdown/"],
+  },
+  {
+    name: "Quizzes",
+    path: "/admin/quiz-system",
+    activePaths: ["/admin/quiz-system", "/admin/quiz-detail/"],
+  },
 ];
+
 
 const Header = () => {
   const [open, setOpen] = useState(false);
   const [userState, setUserState] = useState(null)
+
+  const location = useLocation();
 
   const { user } = useAuth()
 
@@ -58,21 +70,24 @@ const Header = () => {
           {/* Navigation for larger screens */}
           <ProtectedComponent>        
             <nav className="hidden md:flex space-x-8">
-              {navItems.map((item) => (
-                <NavLink
-                  key={item.path}
-                  to={item.path}
-                  className={({ isActive }) =>
-                    `relative pb-2 hover:text-purple-600 hover:font-medium transition-all duration-300 ${
-                      isActive
-                        ? 'text-purple-600 after:content-[""] font-medium after:absolute after:bottom-0 after:left-0 after:h-[3px] after:w-full after:bg-purple-600 after:transition-all after:duration-300'
-                        : 'after:content-[""] after:absolute after:bottom-0 after:left-0 after:h-[3px] after:w-0 after:bg-purple-600 after:hover:w-full after:transition-all after:duration-300'
-                    }`
-                  }
-                >
-                  {item.name}
-                </NavLink>
-              ))}
+            {navItems.map((item) => {
+              const isActive = item.activePaths.some((p) =>
+                location.pathname.startsWith(p)
+              );
+                  return (
+                    <NavLink
+                      key={item.path}
+                      to={item.path}
+                      className={`relative pb-2 hover:text-purple-600 hover:font-medium transition-all duration-300 ${
+                        isActive
+                          ? 'text-purple-600 font-medium after:content-[""] after:absolute after:bottom-0 after:left-0 after:h-[3px] after:w-full after:bg-purple-600 after:transition-all after:duration-300'
+                          : 'after:content-[""] after:absolute after:bottom-0 after:left-0 after:h-[3px] after:w-0 after:bg-purple-600 after:hover:w-full after:transition-all after:duration-300'
+                      }`}
+                    >
+                      {item.name}
+                    </NavLink>
+                  );
+                })}
             </nav>                
           </ProtectedComponent>
 
@@ -103,22 +118,25 @@ const Header = () => {
                       </span>
                     </div>
                     <div className="flex-grow px-4 pt-2 pb-3 space-y-1">
-                      {navItems.map((item) => (
+                    {navItems.map((item) => {
+                      const isActive = item.activePaths.some((p) =>
+                        location.pathname.startsWith(p)
+                      );
+
+                      return (
                         <NavLink
                           key={item.path}
                           to={item.path}
-                          className={({ isActive }) =>
-                            `block px-3 py-2 rounded-md text-base font-medium ${
-                              isActive
-                                ? "text-purple-600 bg-purple-50"
-                                : "text-gray-700 hover:text-purple-600 hover:bg-purple-50"
-                            }`
-                          }
-                          onClick={() => setOpen(false)}
+                          className={`relative pb-2 hover:text-purple-600 hover:font-medium transition-all duration-300 ${
+                            isActive
+                              ? 'text-purple-600 font-medium after:content-[""] after:absolute after:bottom-0 after:left-0 after:h-[3px] after:w-full after:bg-purple-600 after:transition-all after:duration-300'
+                              : 'after:content-[""] after:absolute after:bottom-0 after:left-0 after:h-[3px] after:w-0 after:bg-purple-600 after:hover:w-full after:transition-all after:duration-300'
+                          }`}
                         >
                           {item.name}
                         </NavLink>
-                      ))}
+                      );
+                    })}
                     </div>
                     <div className="px-4 py-4 border-t border-gray-200">
                       <LoginLogoutDialog variant={userState ? "logout" : "login"}/>
