@@ -23,11 +23,12 @@ import {
 } from "@/components/ui/drawer";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 
 export default function StudentBreakdown() {
-  const { userId } = useParams();
+  const { userId, assessmentId } = useParams();
+  const navigate = useNavigate();
   const { quizResults, isLoading } = useQuizResult(userId, true);
   const [selectedAssessment, setSelectedAssessment] = useState(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
@@ -35,12 +36,15 @@ export default function StudentBreakdown() {
   if (isLoading) return <LoadingSpinner />;
   if (!quizResults.length) return <p>No quiz results found.</p>;
 
-  const student = quizResults[0]?.user;
-
+  const filteredResults = quizResults.filter((result) => {
+    return (result.assessment_number === assessmentId)
+  });
+  const student = filteredResults[0]?.user;
+  
   const getSelectedAssessment = () => {
-    return quizResults.find((a) => a.id === selectedAssessment);
+    return filteredResults.find((a) => a.id === selectedAssessment);
   };
-
+  
   const calculatePercentage = (score, total) => {
     return (((score / total) * 50) + 50).toFixed(1);
   };
@@ -55,7 +59,15 @@ export default function StudentBreakdown() {
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
-            <BreadcrumbLink href="/admin/scores">All Students</BreadcrumbLink>
+            <BreadcrumbLink
+              href={`/admin/quiz-scores/${assessmentId}`}
+              onClick={(e) => {
+                e.preventDefault();
+                navigate(`/admin/quiz-scores/${assessmentId}`);
+              }}
+            >
+              Quiz {assessmentId}
+            </BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator>
             <ChevronRight className="h-4 w-4" />
@@ -93,19 +105,19 @@ export default function StudentBreakdown() {
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {quizResults.map((assessment) => (
+        {filteredResults.map((assessment) => (
             <Card
               key={assessment.id}
-              className="cursor-pointer hover:border-primary transition-colors"
               onClick={() => {
                 setSelectedAssessment(assessment.id);
                 setIsDrawerOpen(true);
               }}
+              className="cursor-pointer"
             >
               <CardHeader>
-                <CardTitle className="text-lg sm:text-xl">
-                  {assessment.assessment_number}
-                </CardTitle>
+              <CardTitle className="text-lg sm:text-xl">
+                Attempt {assessment.retake_number}
+              </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-2">
@@ -142,9 +154,9 @@ export default function StudentBreakdown() {
       <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
         <DrawerContent>
           <DrawerHeader className="border-b">
-            <DrawerTitle className="text-lg sm:text-xl">
-              {getSelectedAssessment()?.assessment_number} Results
-            </DrawerTitle>
+          <DrawerTitle className="text-lg sm:text-xl">
+            Attempt {getSelectedAssessment()?.retake_number} Results
+          </DrawerTitle>
             <DrawerDescription>
               Score: {getSelectedAssessment()?.score}/
               {getSelectedAssessment()?.answers.length} (
@@ -203,3 +215,11 @@ export default function StudentBreakdown() {
     </div>
   );
 }
+
+
+
+
+
+
+
+
