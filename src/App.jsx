@@ -16,11 +16,12 @@ function App() {
         <Route path="admin">
           <Route path="scores" element={<AuthGuard><Pages.Admin /></AuthGuard>} />
           <Route
-            path="student-breakdown/:userId"
+            path="student-breakdown/:assessmentId/:userId"
             element={<AuthGuard><Pages.StudentBreakdown /></AuthGuard>}
           />
           <Route path="quiz-system" element={<AuthGuard><Pages.QuizSystem /></AuthGuard>} />
           <Route path="quiz-detail/:assessmentId" element={<AuthGuard><Pages.QuizDetail /></AuthGuard>} />
+          <Route path="quiz-scores/:assessmentId" element={<AuthGuard><Pages.QuizScores /></AuthGuard>} />
         </Route>
       </Routes>
     </>
