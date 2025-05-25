@@ -28,15 +28,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { quizSchema } from "@/lib/validation";
 import useQuiz from "../supabase/custom-hooks/useQuiz";
-import useQuizResult from "@/supabase/custom-hooks/useQuizResult";
+import useQuestion from "@/supabase/custom-hooks/useQuestion";
+
 
 
 export default function QuizSystem() {
   const navigate = useNavigate();
   const { quizzes, createQuiz } = useQuiz();
-  const { fetchByAssessmentNumber } = useQuizResult();
 
   const handleNavigate = (assessmentId) => {
     navigate(`/admin/quiz-detail/${assessmentId}`);
@@ -46,7 +45,9 @@ export default function QuizSystem() {
   const [newQuizDuration, setNewQuizDuration] = useState("");
   const [newQuizAssessment, setNewQuizAssessment] = useState("");
   const [usedAssessments, setUsedAssessments] = useState(new Set());
-  const [responseCounts, setResponseCounts] = useState({});
+  const { fetchQuestionsReturn } = useQuestion(); // Only needed for type consistency
+  const [questionCounts, setQuestionCounts] = useState({});
+
   
   const assessments = ["Assessment 1", "Assessment 2", "Assessment 3"];
 
@@ -65,23 +66,24 @@ export default function QuizSystem() {
     const usedAssessments = new Set(quizzes.map((quiz) => quiz.assessment));
     setUsedAssessments(usedAssessments);
   
-    // Fetch responses for each quiz
-    const loadResponseCounts = async () => {
+    const loadQuestionCounts = async () => {
       const counts = {};
+  
       for (const quiz of quizzes) {
         try {
-          const responses = await fetchByAssessmentNumber(quiz.assessment);
-          counts[quiz.assessment] = responses.length;
+          const questions = await fetchQuestionsReturn(quiz.assessment);
+          counts[quiz.assessment] = questions?.length || 0;
         } catch (err) {
-          console.error(`Failed to fetch responses for ${quiz.assessment}`, err);
+          console.error(`Failed to fetch questions for ${quiz.assessment}`, err);
           counts[quiz.assessment] = 0;
         }
       }
-      setResponseCounts(counts);
+  
+      setQuestionCounts(counts);
     };
   
     if (quizzes.length > 0) {
-      loadResponseCounts();
+      loadQuestionCounts();
     }
   }, [quizzes]);  
 
@@ -175,9 +177,9 @@ export default function QuizSystem() {
               <div className="flex items-center justify-between">
                 <Badge variant="secondary">
                 <Badge variant="secondary">
-                  {responseCounts[quiz.assessment] > 0
-                    ? `${responseCounts[quiz.assessment]} Responses`
-                    : "No responses"}
+                  {questionCounts[quiz.assessment] > 0
+                    ? `${questionCounts[quiz.assessment]} Question${questionCounts[quiz.assessment] === 1 ? '' : 's'}`
+                    : "No questions"}
                 </Badge>
                 </Badge>
               </div>
