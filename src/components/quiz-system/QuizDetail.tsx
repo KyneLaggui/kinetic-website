@@ -1,10 +1,7 @@
 import { useEffect, useState } from "react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { QuizHeader } from "@/components/quiz-system/QuizHeader";
 import { AddQuestionDialog } from "@/components/quiz-system/AddQuestionDialog";
 import { QuestionCard } from "@/components/quiz-system/QuestionCard";
-import { StudentResponseCard } from "@/components/quiz-system/StudentResponseCard";
-import { ResponseDrawer } from "@/components/quiz-system/ResponseDrawer";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -19,25 +16,44 @@ import { useNavigate, useParams } from "react-router-dom";
 import useQuiz from "@/supabase/custom-hooks/useQuiz";
 import useQuizResult from "@/supabase/custom-hooks/useQuizResult";
 import useUser from "@/supabase/custom-hooks/useUser";
+import { LoadingSpinner } from "@/components/LoadingSpinner";
 
 export default function QuizDetail() {
   const { assessmentId } = useParams<{ assessmentId: string }>();
-  const { questions, createQuestion, updateQuestion, deleteQuestion, loading, error } = useQuestion(assessmentId);
-  const { quizzes, updateQuiz, deleteQuiz } = useQuiz(assessmentId)
+  const {
+    questions,
+    createQuestion,
+    updateQuestion,
+    deleteQuestion,
+    loading,
+    error,
+  } = useQuestion(assessmentId);
+  const { quizzes, updateQuiz, deleteQuiz } = useQuiz(assessmentId);
   const { fetchByAssessmentNumber } = useQuizResult();
   const { fetchUserById } = useUser();
 
-  const [studentResponses, setStudentResponses] = useState<StudentResponse[]>([]);
+  const [studentResponses, setStudentResponses] = useState<StudentResponse[]>(
+    []
+  );
   const [openDrawer, setOpenDrawer] = useState<string | null>(null);
 
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
-  const handleAddQuestion = async (newQuestionData: { title: string; choices: { choice: string; isAnswer: boolean }[] }) => {
-    const correctAnswer = newQuestionData.choices.find((c) => c.isAnswer)?.choice || "";
-    await createQuestion(newQuestionData.title, newQuestionData.choices, correctAnswer, assessmentId);
+  const handleAddQuestion = async (newQuestionData: {
+    title: string;
+    choices: { choice: string; isAnswer: boolean }[];
+  }) => {
+    const correctAnswer =
+      newQuestionData.choices.find((c) => c.isAnswer)?.choice || "";
+    await createQuestion(
+      newQuestionData.title,
+      newQuestionData.choices,
+      correctAnswer,
+      assessmentId
+    );
   };
-  
-  const handleEditQuestion = async (updatedQuestion: Question) => {    
+
+  const handleEditQuestion = async (updatedQuestion: Question) => {
     await updateQuestion(updatedQuestion.id, updatedQuestion);
   };
 
@@ -48,9 +64,9 @@ export default function QuizDetail() {
   const handleDeleteQuiz = async (assessmentId: string) => {
     const isSuccessful = await deleteQuiz(assessmentId);
     if (isSuccessful) {
-      navigate('/admin/quiz-system')
+      navigate("/admin/quiz-system");
     }
-  }
+  };
 
   useEffect(() => {
     const fetchStudentResponses = async () => {
@@ -84,44 +100,55 @@ export default function QuizDetail() {
 
     fetchStudentResponses();
   }, [quizzes]);
-  
+
   return (
     <div className="container mx-auto py-6">
       <Breadcrumb className="mb-4">
         <BreadcrumbList>
           <BreadcrumbItem>
-            <BreadcrumbLink href="/admin/quiz-system">All Quizzes</BreadcrumbLink>
+            <BreadcrumbLink href="/admin/quiz-system">
+              All Quizzes
+            </BreadcrumbLink>
           </BreadcrumbItem>
-          <BreadcrumbSeparator><ChevronRight className="h-4 w-4" /></BreadcrumbSeparator>
-          <BreadcrumbItem><BreadcrumbPage>Quiz Name</BreadcrumbPage></BreadcrumbItem>
+          <BreadcrumbSeparator>
+            <ChevronRight className="h-4 w-4" />
+          </BreadcrumbSeparator>
+          <BreadcrumbItem>
+            <BreadcrumbPage>Quiz Name</BreadcrumbPage>
+          </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
 
       {quizzes.length > 0 && (
-        <QuizHeader onUpdateQuiz={updateQuiz} onDeleteQuiz={handleDeleteQuiz} assessmentId={assessmentId} quiz={quizzes[0]} />
+        <QuizHeader
+          onUpdateQuiz={updateQuiz}
+          onDeleteQuiz={handleDeleteQuiz}
+          assessmentId={assessmentId}
+          quiz={quizzes[0]}
+        />
       )}
 
-      <Tabs defaultValue="quiz" className="w-full">
-        <TabsList className="mb-4">
-          <TabsTrigger value="quiz">Quiz</TabsTrigger>
-        </TabsList>
+      <div className="flex justify-end mb-4 mt-6 ">
+        <AddQuestionDialog onAddQuestion={handleAddQuestion} />
+      </div>
 
-        <TabsContent value="quiz" className="space-y-4">
-          <div className="flex justify-end mb-4">
-            <AddQuestionDialog onAddQuestion={handleAddQuestion} />
-          </div>
-
-          {loading ? <p>Loading questions...</p> : error ? <p>Error: {error}</p> : questions.map((question, index) => (
-            <QuestionCard
-              key={question.id}
-              question={question}
-              index={index}
-              onEditQuestion={handleEditQuestion}
-              onDeleteQuestion={handleDeleteQuestion}
-            />
-          ))}
-        </TabsContent>
-      </Tabs>
+      {loading ? (
+        <LoadingSpinner />
+      ) : error ? (
+        <p className="flex items-center justify-center h-screen w-full">
+          Error: {error}
+        </p>
+      ) : (
+        questions.map((question, index) => (
+          <QuestionCard
+            key={question.id}
+            question={question}
+            index={index}
+            onEditQuestion={handleEditQuestion}
+            onDeleteQuestion={handleDeleteQuestion}
+          />
+        ))
+      )}
     </div>
   );
 }
