@@ -17,7 +17,7 @@ export default function LatestAttemptList({ responses }) {
   );
 
   const handleClick = (userId) => {
-    navigate(`/admin/student-breakdown/${assessmentId}/${userId}`);
+    navigate(`/student-breakdown/${assessmentId}/${userId}`);
   };
 
   return (
@@ -37,7 +37,7 @@ export default function LatestAttemptList({ responses }) {
                 <p className="text-sm text-muted-foreground">{res.studentId}</p>
               </div>
               <div className="text-right">
-                <p className="text-sm">Score: {res.score}/{res.answers.length}</p>
+                <p className="text-sm">Latest Score: {res.score}/{res.answers.length}</p>
                 <Badge variant="secondary">{percentage}%</Badge>
               </div>
             </div>
