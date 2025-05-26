@@ -35,12 +35,15 @@ import {
   ResponsiveContainer,
   Legend,
 } from "recharts";
+import { useAuth } from "@/supabase/custom-hooks/useAuth";
 
 
 export default function StudentBreakdown() {
   const { userId, assessmentId } = useParams();
   const navigate = useNavigate();
   const { quizResults, isLoading } = useQuizResult(userId, true);
+  const { user, loading } = useAuth();
+  
   const [selectedAssessment, setSelectedAssessment] = useState(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
@@ -52,6 +55,7 @@ export default function StudentBreakdown() {
   });
 
   const student = filteredResults[0]?.user;
+  const studentFullName = `${student?.first_name} ${student?.last_name}`;
   
   const getSelectedAssessment = () => {
     return filteredResults.find((a) => a.id === selectedAssessment);
@@ -77,25 +81,49 @@ export default function StudentBreakdown() {
     <div className="container px-4 sm:px-6 py-6 space-y-6">
       <Breadcrumb>
         <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink
-              href={`/admin/quiz-scores/${assessmentId}`}
-              onClick={(e) => {
-                e.preventDefault();
-                navigate(`/admin/quiz-scores/${assessmentId}`);
-              }}
-            >
-              {assessmentId}
-            </BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator>
-            <ChevronRight className="h-4 w-4" />
-          </BreadcrumbSeparator>
-          <BreadcrumbItem>
-            <BreadcrumbPage>
-              {student?.first_name} {student?.last_name}
-            </BreadcrumbPage>
-          </BreadcrumbItem>
+          {user ? (
+            // ✅ Logged-in breadcrumb: Assessment > Student
+            <>
+              <BreadcrumbItem>
+                <BreadcrumbLink
+                  href={`/admin/quiz-scores/${assessmentId}`}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    navigate(`/admin/quiz-scores/${assessmentId}`);
+                  }}
+                >
+                  {assessmentId}
+                </BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator>
+                <ChevronRight className="h-4 w-4" />
+              </BreadcrumbSeparator>
+              <BreadcrumbItem>
+                <BreadcrumbPage>{studentFullName}</BreadcrumbPage>
+              </BreadcrumbItem>
+            </>
+          ) : (
+            // ❌ No logged-in user: Student Name > Assessment
+            <>
+              <BreadcrumbItem>
+                <BreadcrumbLink
+                  href={`/student-assessment/${userId}`}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    navigate(`/student-assessment/${userId}`);
+                  }}
+                >
+                  {studentFullName}
+                </BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator>
+                <ChevronRight className="h-4 w-4" />
+              </BreadcrumbSeparator>
+              <BreadcrumbItem>
+                <BreadcrumbPage>{assessmentId}</BreadcrumbPage>
+              </BreadcrumbItem>
+            </>
+          )}
         </BreadcrumbList>
       </Breadcrumb>
       <div className="space-y-6">
