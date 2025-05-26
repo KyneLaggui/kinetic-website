@@ -9,7 +9,10 @@ export default function LatestAttemptList({ responses }) {
   const latestByUser = Object.values(
     responses.reduce((acc, res) => {
       const userId = res.user_id;
-      if (!acc[userId] || new Date(res.created_at) > new Date(acc[userId].created_at)) {
+      if (
+        !acc[userId] ||
+        new Date(res.created_at) > new Date(acc[userId].created_at)
+      ) {
         acc[userId] = res;
       }
       return acc;
@@ -21,9 +24,11 @@ export default function LatestAttemptList({ responses }) {
   };
 
   return (
-    <div className="w-full max-w-4xl mx-auto space-y-4">
+    <div className="w-full max-w-6xl mx-auto space-y-4">
       {latestByUser.map((res) => {
-        const percentage = ((res.score / res.answers.length) * 50 + 50).toFixed(1);
+        const percentage = ((res.score / res.answers.length) * 50 + 50).toFixed(
+          1
+        );
 
         return (
           <Card
@@ -37,7 +42,9 @@ export default function LatestAttemptList({ responses }) {
                 <p className="text-sm text-muted-foreground">{res.studentId}</p>
               </div>
               <div className="text-right">
-                <p className="text-sm">Latest Score: {res.score}/{res.answers.length}</p>
+                <p className="text-sm">
+                  Latest Score: {res.score}/{res.answers.length}
+                </p>
                 <Badge variant="secondary">{percentage}%</Badge>
               </div>
             </div>
