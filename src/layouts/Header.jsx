@@ -96,55 +96,63 @@ const Header = () => {
           </div>
 
           {/* Mobile menu button */}
-          <ProtectedComponent>
-            <div className="md:hidden">
-              <Sheet open={open} onOpenChange={setOpen}>
-                <SheetTrigger asChild>
-                  <Button variant="ghost" size="icon" className="relative">
-                    <span className="sr-only">Open main menu</span>
-                    {open ? (
-                      <X className="h-6 w-6" aria-hidden="true" />
-                    ) : (
-                      <Menu className="h-6 w-6" aria-hidden="true" />
-                    )}
-                  </Button>
-                </SheetTrigger>
-                <SheetContent side="right" className="w-[300px] sm:w-[400px]">
-                  <div className="flex flex-col h-full">
-                    <div className="px-4 pt-5 pb-4 sm:px-6">
-                      <span className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 text-transparent bg-clip-text">
-                        Ki<span className="text-pink-600">Net</span>Ic
-                      </span>
-                    </div>
-                    <div className="flex-grow px-4 pt-2 pb-3 space-y-1">
-                    {navItems.map((item) => {
-                      const isActive = item.activePaths.some((p) =>
-                        location.pathname.startsWith(p)
-                      );
-
-                      return (
-                        <NavLink
-                          key={item.path}
-                          to={item.path}
-                          className={`block py-2 relative hover:text-purple-600 hover:font-medium transition-all duration-300 ${
-                            isActive
-                              ? 'text-purple-600 font-medium after:content-[""] after:absolute after:bottom-0 after:left-0 after:h-[3px] after:w-full after:bg-purple-600 after:transition-all after:duration-300'
-                              : 'after:content-[""] after:absolute after:bottom-0 after:left-0 after:h-[3px] after:w-0 after:bg-purple-600 after:hover:w-full after:transition-all after:duration-300'
-                          }`}
-                        >
-                          {item.name}
-                        </NavLink>
-                      );
-                    })}
-                    </div>
-                    <div className="px-4 py-4 border-t border-gray-200">
-                      <LoginLogoutDialog variant={userState ? "logout" : "login"}/>
-                    </div>
+          <div className="md:hidden">
+            <Sheet open={open} onOpenChange={setOpen}>
+              <SheetTrigger asChild>
+                <Button variant="ghost" size="icon" className="relative">
+                  <span className="sr-only">Open main menu</span>
+                  {open ? (
+                    <X className="h-6 w-6" aria-hidden="true" />
+                  ) : (
+                    <Menu className="h-6 w-6" aria-hidden="true" />
+                  )}
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="right" className="w-[300px] sm:w-[400px]">
+                <div className="flex flex-col h-full">
+                  <div className="px-4 pt-5 pb-4 sm:px-6">
+                    <span className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 text-transparent bg-clip-text">
+                      Ki<span className="text-pink-600">Net</span>Ic
+                    </span>
                   </div>
-                </SheetContent>
-              </Sheet>
-            </div>
-          </ProtectedComponent>
+
+                  {/* Conditionally render nav and login/logout button */}
+                  {userState ? (
+                    <>
+                      <div className="flex-grow px-4 pt-2 pb-3 space-y-1">
+                        {navItems.map((item) => {
+                          const isActive = item.activePaths.some((p) =>
+                            location.pathname.startsWith(p)
+                          );
+                          return (
+                            <NavLink
+                              key={item.path}
+                              to={item.path}
+                              className={`block py-2 relative hover:text-purple-600 hover:font-medium transition-all duration-300 ${
+                                isActive
+                                  ? 'text-purple-600 font-medium after:content-[""] after:absolute after:bottom-0 after:left-0 after:h-[3px] after:w-full after:bg-purple-600 after:transition-all after:duration-300'
+                                  : 'after:content-[""] after:absolute after:bottom-0 after:left-0 after:h-[3px] after:w-0 after:bg-purple-600 after:hover:w-full after:transition-all after:duration-300'
+                              }`}
+                            >
+                              {item.name}
+                            </NavLink>
+                          );
+                        })}
+                      </div>
+                      <div className="px-4 py-4 border-t border-gray-200">
+                        <LoginLogoutDialog variant="logout" />
+                      </div>
+                    </>
+                  ) : (
+                    <div className="px-4 py-4 border-t border-gray-200 mt-auto">
+                      <LoginLogoutDialog variant="login" />
+                    </div>
+                  )}
+                </div>
+              </SheetContent>
+            </Sheet>
+          </div>
+
         </div>
       </div>
     </header>
