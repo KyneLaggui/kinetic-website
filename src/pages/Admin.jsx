@@ -18,6 +18,8 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart";
 import { ArrowRight, TrendingUp } from "lucide-react";
+import { Register } from "@/components/Register";
+
 
 const getHighestRetakeResults = (results) => {
   const resultMap = new Map();
@@ -77,25 +79,28 @@ const Admin = () => {
   useEffect(() => {
     const loadResponseCounts = async () => {
       const counts = {};
+  
       for (const quiz of quizzes) {
         try {
           const responses = await fetchByAssessmentNumber(quiz.assessment);
-          counts[quiz.assessment] = responses.length;
+          const uniqueLatest = getHighestRetakeResults(responses);
+  
+          // Count how many unique responses exist for this assessment
+          counts[quiz.assessment] = uniqueLatest.length;
         } catch (err) {
-          console.error(
-            `Failed to fetch responses for ${quiz.assessment}`,
-            err
-          );
+          console.error(`Failed to fetch responses for ${quiz.assessment}`, err);
           counts[quiz.assessment] = 0;
         }
       }
+  
       setResponseCounts(counts);
     };
-
+  
     if (quizzes.length > 0) {
       loadResponseCounts();
     }
   }, [quizzes]);
+  
 
   const handleNavigate = (assessmentId) => {
     navigate(`/admin/quiz-scores/${assessmentId}`);
@@ -108,6 +113,7 @@ const Admin = () => {
       for (const quiz of quizzes) {
         try {
           const responses = await fetchByAssessmentNumber(quiz.assessment);
+          console.log(responses)
           allResults.push(...responses);
         } catch (err) {
           console.error(
@@ -130,14 +136,24 @@ const Admin = () => {
 
   return (
     <div className="container py-6 space-y-6">
-      <div className="flex flex-col gap-1">
-        <h2 className="text-2xl font-bold tracking-tight">Scores</h2>
-        <p className="text-muted-foreground">
-          View detailed analytics and score breakdowns for each student.
-        </p>
+      <div className="flex justify-between items-center">
+        <div className="flex flex-col gap-1">
+          <h2 className="text-2xl font-bold tracking-tight">Scores</h2>
+          <p className="text-muted-foreground">
+            View detailed analytics and score breakdowns for each student.
+          </p>
+        </div>
+        <Register />
       </div>
+
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {quizzes.map((quiz) => {
+        {[...quizzes]
+          .sort((a, b) => {
+            const numA = parseInt(a.assessment.replace(/\D/g, ""));
+            const numB = parseInt(b.assessment.replace(/\D/g, ""));
+            return numA - numB;
+          })
+          .map((quiz) => {
           const chartData = scoreDistributions[quiz.assessment];
 
           // ✅ Safely generate coloredChartData inside the map
