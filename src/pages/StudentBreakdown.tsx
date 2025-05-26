@@ -25,6 +25,17 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useNavigate, useParams } from "react-router-dom";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  Tooltip,
+  CartesianGrid,
+  ResponsiveContainer,
+  Legend,
+} from "recharts";
+
 
 export default function StudentBreakdown() {
   const { userId, assessmentId } = useParams();
@@ -39,6 +50,7 @@ export default function StudentBreakdown() {
   const filteredResults = quizResults.filter((result) => {
     return (result.assessment_number === assessmentId)
   });
+
   const student = filteredResults[0]?.user;
   
   const getSelectedAssessment = () => {
@@ -54,6 +66,13 @@ export default function StudentBreakdown() {
     return `${first?.charAt(0) || ""}${last?.charAt(0) || ""}`.toUpperCase();
   };
 
+  const lineChartData = filteredResults.map((result) => ({
+    name: `Attempt ${result.retake_number}`,
+    score: result.score,
+    total: result.answers.length,
+    Percentage: parseFloat(calculatePercentage(result.score, result.answers.length)),
+  }));
+
   return (
     <div className="container px-4 sm:px-6 py-6 space-y-6">
       <Breadcrumb>
@@ -66,7 +85,7 @@ export default function StudentBreakdown() {
                 navigate(`/admin/quiz-scores/${assessmentId}`);
               }}
             >
-              Quiz {assessmentId}
+              {assessmentId}
             </BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator>
@@ -79,7 +98,6 @@ export default function StudentBreakdown() {
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
-
       <div className="space-y-6">
         <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4">
           <Avatar className="h-20 w-20">
@@ -102,6 +120,18 @@ export default function StudentBreakdown() {
               </Badge>
             </div>
           </div>
+          <div className="w-full h-64">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={lineChartData} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="name" />
+                <YAxis domain={[0, 100]} tickFormatter={(val) => `${val}%`} />
+                <Tooltip formatter={(value) => `${value}%`} />
+                <Legend />
+                <Line type="monotone" dataKey="Percentage" stroke="#3b82f6" strokeWidth={3} dot />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -114,11 +144,18 @@ export default function StudentBreakdown() {
               }}
               className="cursor-pointer"
             >
-              <CardHeader>
+            <CardHeader className="flex flex-row items-start justify-between">
               <CardTitle className="text-lg sm:text-xl">
                 Attempt {assessment.retake_number}
               </CardTitle>
-              </CardHeader>
+              <div className="text-sm text-muted-foreground">
+                {new Date(assessment.created_at).toLocaleDateString(undefined, {
+                  year: "numeric",
+                  month: "short",
+                  day: "numeric",
+                })}
+              </div>
+            </CardHeader>
               <CardContent>
                 <div className="space-y-2">
                   <div className="flex items-end justify-between">
