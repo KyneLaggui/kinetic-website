@@ -126,7 +126,7 @@ const Header = () => {
                         <NavLink
                           key={item.path}
                           to={item.path}
-                          className={`relative pb-2 hover:text-purple-600 hover:font-medium transition-all duration-300 ${
+                          className={`block py-2 relative hover:text-purple-600 hover:font-medium transition-all duration-300 ${
                             isActive
                               ? 'text-purple-600 font-medium after:content-[""] after:absolute after:bottom-0 after:left-0 after:h-[3px] after:w-full after:bg-purple-600 after:transition-all after:duration-300'
                               : 'after:content-[""] after:absolute after:bottom-0 after:left-0 after:h-[3px] after:w-0 after:bg-purple-600 after:hover:w-full after:transition-all after:duration-300'
