@@ -33,8 +33,8 @@ import { useLocation } from "react-router-dom";
 const navItems = [
   {
     name: "Scores",
-    path: "/admin/scores",
-    activePaths: ["/admin/scores", "/admin/quiz-scores/", "/admin/student-breakdown/"],
+    path: "/scores",
+    activePaths: ["/scores", "/admin/quiz-scores/", "/student-breakdown/"],
   },
   {
     name: "Quizzes",
@@ -42,7 +42,6 @@ const navItems = [
     activePaths: ["/admin/quiz-system", "/admin/quiz-detail/"],
   },
 ];
-
 
 const Header = () => {
   const [open, setOpen] = useState(false);
