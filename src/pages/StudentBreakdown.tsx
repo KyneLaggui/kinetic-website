@@ -11,7 +11,14 @@ import {
 } from "@/components/ui/breadcrumb";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardDescription,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardFooter,
+} from "@/components/ui/card";
 import {
   Drawer,
   DrawerClose,
@@ -29,12 +36,17 @@ import {
   LineChart,
   Line,
   XAxis,
-  YAxis,
-  Tooltip,
   CartesianGrid,
+  Tooltip,
   ResponsiveContainer,
-  Legend,
 } from "recharts";
+import {
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+  ChartConfig,
+} from "@/components/ui/chart";
+import { TrendingUp } from "lucide-react";
 import { useAuth } from "@/supabase/custom-hooks/useAuth";
 
 export default function StudentBreakdown() {
@@ -82,6 +94,13 @@ export default function StudentBreakdown() {
       calculatePercentage(result.score, result.answers.length)
     ),
   }));
+
+  const lineChartConfig = {
+    Percentage: {
+      label: "Score %",
+      color: "hsl(275, 74%, 54%)",
+    },
+  } satisfies ChartConfig;
 
   return (
     <div className="container px-4 sm:px-6 py-6 space-y-6">
@@ -132,106 +151,137 @@ export default function StudentBreakdown() {
           )}
         </BreadcrumbList>
       </Breadcrumb>
-      <div className="space-y-6">
-        <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4">
-          <Avatar className="h-20 w-20">
-            <AvatarImage src="" alt={student?.first_name} />
-            <AvatarFallback>
-              {getInitials(student?.first_name + " " + student?.last_name)}
-            </AvatarFallback>
-          </Avatar>
-
-          <div className="space-y-2 text-center sm:text-left">
-            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
-              {student?.student_id}
-            </h1>
-            <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 items-center ">
-              <h2 className="text-xl sm:text-2xl">
-                {student?.first_name} {student?.last_name}
-              </h2>
-              <Badge variant="outline" className="w-fit">
-                {student?.year}-{student?.section}
-              </Badge>
+      <div className="grid gap-4 grid-cols-1 lg:grid-cols-2">
+        <div className="flex flex-col gap-6">
+          <div className="flex justify-start items-center gap-4">
+            <Avatar className="h-20 w-20">
+              <AvatarImage src="" alt={student?.first_name} />
+              <AvatarFallback>
+                {getInitials(student?.first_name + " " + student?.last_name)}
+              </AvatarFallback>
+            </Avatar>
+            {/* Student Info */}
+            <div className="space-y-2 text-left">
+              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-nowrap">
+                {student?.student_id}
+              </h1>
+              <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 ">
+                <h2 className="text-xl sm:text-2xl">
+                  {student?.first_name} {student?.last_name}
+                </h2>
+                <Badge variant="outline" className="w-fit ">
+                  {student?.year}-{student?.section}
+                </Badge>
+              </div>
             </div>
           </div>
-          <div className="w-full h-64">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart
-                data={lineChartData}
-                margin={{ top: 20, right: 30, left: 0, bottom: 5 }}
-              >
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" />
-                <YAxis domain={[0, 100]} tickFormatter={(val) => `${val}%`} />
-                <Tooltip formatter={(value) => `${value}%`} />
-                <Legend />
-                <Line
-                  type="monotone"
-                  dataKey="Percentage"
-                  stroke="#3b82f6"
-                  strokeWidth={3}
-                  dot
-                />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
+
+          {/* Chart */}
+          <Card className="w-full lg:max-w-[600px] ">
+            <CardHeader>
+              <CardTitle>Performance Over Time</CardTitle>
+              <CardDescription>
+                {studentFullName}'s Attempt Scores
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ChartContainer config={lineChartConfig}>
+                <LineChart
+                  data={lineChartData}
+                  margin={{ left: 12, right: 12 }}
+                  accessibilityLayer
+                >
+                  <CartesianGrid vertical={false} />
+                  <XAxis
+                    dataKey="name"
+                    tickLine={false}
+                    axisLine={false}
+                    tickMargin={8}
+                  />
+                  <ChartTooltip
+                    cursor={false}
+                    content={<ChartTooltipContent hideLabel />}
+                  />
+                  <Line
+                    type="linear"
+                    dataKey="Percentage"
+                    stroke="var(--color-Percentage)"
+                    strokeWidth={2}
+                    dot={false}
+                  />
+                </LineChart>
+              </ChartContainer>
+            </CardContent>
+            <CardFooter className="flex-col items-start gap-2 text-sm">
+              <div className="flex gap-2 font-medium leading-none">
+                Tracking retake improvement <TrendingUp className="h-4 w-4" />
+              </div>
+              <div className="leading-none text-muted-foreground">
+                Based on {filteredResults.length} attempt
+                {filteredResults.length !== 1 && "s"}
+              </div>
+            </CardFooter>
+          </Card>
         </div>
 
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {filteredResults.map((assessment) => (
-            <Card
-              key={assessment.id}
-              onClick={() => {
-                setSelectedAssessment(assessment.id);
-                setIsDrawerOpen(true);
-              }}
-              className="cursor-pointer"
-            >
-              <CardHeader className="flex flex-row items-start justify-between">
-                <CardTitle className="text-lg sm:text-xl">
-                  Attempt {assessment.retake_number}
-                </CardTitle>
-                <div className="text-sm text-muted-foreground">
-                  {new Date(assessment.created_at).toLocaleDateString(
-                    undefined,
-                    {
-                      year: "numeric",
-                      month: "short",
-                      day: "numeric",
-                    }
-                  )}
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2">
-                  <div className="flex items-end justify-between">
-                    <div className="text-xl sm:text-2xl font-bold">
-                      {assessment.score}/{assessment.answers.length}
-                    </div>
-                    <div className="text-base sm:text-lg text-muted-foreground">
-                      {calculatePercentage(
-                        assessment.score,
-                        assessment.answers.length
-                      )}
-                      %
-                    </div>
+        {/* Assessment Cards */}
+        <ScrollArea className="h-[75vh]">
+          <div className="grid gap-4 grid-cols-1 w-full h-fit  ">
+            {filteredResults.map((assessment) => (
+              <Card
+                key={assessment.id}
+                onClick={() => {
+                  setSelectedAssessment(assessment.id);
+                  setIsDrawerOpen(true);
+                }}
+                className="cursor-pointer"
+              >
+                <CardHeader className="flex flex-row items-start justify-between">
+                  <CardTitle className="text-lg sm:text-xl">
+                    Attempt {assessment.retake_number}
+                  </CardTitle>
+                  <div className="text-sm text-muted-foreground">
+                    {new Date(assessment.created_at).toLocaleDateString(
+                      undefined,
+                      {
+                        year: "numeric",
+                        month: "short",
+                        day: "numeric",
+                      }
+                    )}
                   </div>
-                  <div className="h-2 bg-muted rounded-full overflow-hidden">
-                    <div
-                      className="h-full bg-primary"
-                      style={{
-                        width: `${calculatePercentage(
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2">
+                    <div className="flex items-end justify-between">
+                      <div className="text-xl sm:text-2xl font-bold">
+                        {assessment.score}/{assessment.answers.length}
+                      </div>
+                      <div className="text-base sm:text-lg text-muted-foreground">
+                        {calculatePercentage(
                           assessment.score,
                           assessment.answers.length
-                        )}%`,
-                      }}
-                    />
+                        )}
+                        %
+                      </div>
+                    </div>
+                    <div className="h-2 bg-muted rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-primary"
+                        style={{
+                          width: `${calculatePercentage(
+                            assessment.score,
+                            assessment.answers.length
+                          )}%`,
+                        }}
+                      />
+                    </div>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </ScrollArea>
       </div>
 
       <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
