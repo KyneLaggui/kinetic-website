@@ -3,6 +3,7 @@ import StudentAssessment from "@/pages/StudentAssessment";
 import Admin from "@/pages/Admin";
 import StudentBreakdown from "@/pages/StudentBreakdown";
 import QuizSystem from "@/pages/QuizSystem";
+import QuizScores from "@/pages/QuizScores";
 import QuizDetail from "@/components/quiz-system/QuizDetail";
 
 export const Pages = {
@@ -12,6 +13,7 @@ export const Pages = {
   StudentBreakdown,
   QuizSystem,
   QuizDetail,
+  QuizScores,
 };
 
 export default Pages;

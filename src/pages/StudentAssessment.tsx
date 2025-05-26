@@ -19,42 +19,53 @@ export default function GamifiedAssessmentDashboard() {
   const { results: assessment4Results } = useAssessment4Result(userId);
   const { users } = useUser(userId);
   const user = users[0];
-
   const studentId = "2021-12345-MN-0";
+
+  console.log(user)
 
   const [assessments, setAssessments] = useState([]);
 
   // Populate the assessments array with data from quizResults
   useEffect(() => {
     if (quizResults.length > 0 || assessment4Results.length > 0) {
-      const transformedQuizAssessments = quizResults.map((result) => ({
-        id: result.id,
-        title: `Assessment ${result.assessment_number}: ${result.title}`,
-        date: result.created_at,
-        score: result.score,
-        duration: result.duration,
-        assessment_number: result.assessment_number.match(/\d+/)?.[0],
-        quiz: {
-          duration: result.quiz.duration,
-          title: result.quiz.title,
-          response: result.quiz.response,
-          assessment: result.quiz.assessment,
-        },
-        answers: result.answers,
-      }));
-
-      // ✅ Sum ALL scores from assessment4Results (no filtering)
+      const latestMap = new Map();
+  
+      quizResults
+        .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+        .forEach((result) => {
+          const key = result.assessment_number.match(/\d+/)?.[0];
+          if (!latestMap.has(key)) {
+            latestMap.set(key, {
+              id: result.id,
+              title: `${result.assessment_number}`,
+              date: result.created_at,
+              score: result.score,
+              duration: result.duration,
+              assessment_number: key,
+              quiz: {
+                duration: result.quiz.duration,
+                title: result.quiz.title,
+                response: result.quiz.response,
+                assessment: result.quiz.assessment,
+              },
+              answers: result.answers,
+            });
+          }
+        });
+  
+      const transformedQuizAssessments = Array.from(latestMap.values());
+  
+      // Sum ALL scores from assessment4Results
       const totalAssessment4Score = assessment4Results.reduce(
         (sum, entry) => sum + entry.score,
         0
       );
-
+  
       const mostRecentDate =
         assessment4Results.sort(
-          (a, b) =>
-            new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+          (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
         )[0]?.created_at ?? new Date().toISOString();
-
+  
       const transformedAssessment4 = {
         id: "a4-combined",
         title: "Module 4",
@@ -68,14 +79,18 @@ export default function GamifiedAssessmentDashboard() {
           response: [],
           assessment: [],
         },
-        answers: Array(25).fill({}), // Optional placeholder for completeness
+        answers: Array(25).fill({}),
       };
-
+  
       const combined = [...transformedQuizAssessments, transformedAssessment4];
-      setAssessments(combined);
+
+      // Sort by assessment_number in ascending order (as number)
+      combined.sort((a, b) => Number(a.assessment_number) - Number(b.assessment_number));
+      
+      setAssessments(combined)
     }
   }, [quizResults, assessment4Results]);
-
+  
   const stats = useMemo(() => {
     if (assessments.length === 0) return { best: 0, average: 0, completed: 0 };
 
@@ -109,13 +124,22 @@ export default function GamifiedAssessmentDashboard() {
         {/* Student Profile */}
         <div className="bg-white rounded-2xl p-4 sm:p-6 shadow-lg">
           <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
-            <div className="relative">
-              <Avatar className="h-20 w-20 sm:h-24 sm:w-24 border-4 border-purple-500 shadow-lg">
-                <AvatarFallback className="bg-gradient-to-br from-purple-500 to-blue-500 text-2xl text-white">
-                  {/* {user?.student_id || studentId.split("-")[3]} */}
-                </AvatarFallback>
-              </Avatar>
-            </div>
+          <div className="relative">
+            <Avatar className="h-20 w-20 sm:h-24 sm:w-24 border-4 border-purple-500 shadow-lg">
+              <AvatarFallback className="bg-gradient-to-br from-purple-600 to-blue-600 text-white text-2xl font-bold flex items-center justify-center">
+                {[
+                  ...(user?.first_name?.split(" ") || []),
+                  user?.middle_name,
+                  user?.last_name,
+                ]
+                  .filter(Boolean)
+                  .map((name) => name[0])
+                  .join("")
+                  .toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
+          </div>
+
             <div className="flex-1 text-center sm:text-left">
               <h1 className="text-xl sm:text-2xl font-bold text-gray-800">
                 {user?.student_id || studentId.split("-")[3]}
@@ -184,7 +208,7 @@ export default function GamifiedAssessmentDashboard() {
                       </div>
                       <div>
                         <h3 className="font-bold text-gray-800">
-                          {assessment?.quiz.title}
+                          {assessment?.title}
                         </h3>
                         <div className="flex items-center gap-2 text-sm text-gray-500">
                           <Timer className="w-4 h-4" />
@@ -192,16 +216,41 @@ export default function GamifiedAssessmentDashboard() {
                         </div>
                       </div>
                     </div>
-                    <div className="text-2xl font-bold text-purple-600">
-                      {assessment.score}/{assessment?.answers.length}
-                    </div>
-                    <div className="text-sm text-muted-foreground">
-                      <Badge variant="outline">
-                        {Math.round(
-                          ((assessment.score / assessment.answers.length) * 50) +50
-                        )}
-                        %
-                      </Badge>
+                    <div className="flex items-center gap-4 sm:ml-auto">
+                      <div className="text-right">
+                        <div className="text-lg sm:text-2xl font-bold text-purple-600">
+                          {assessment.score}/{assessment?.answers.length}
+                        </div>
+                        <div className="text-sm text-muted-foreground">
+                          {Math.round(((assessment.score / assessment.answers.length) * 50) + 50)}%
+                        </div>
+                      </div>
+                      <a
+                        href={`/student-breakdown/${encodeURIComponent(assessment.title)}/${userId}`}
+                        className="text-purple-500 hover:text-purple-700 transition"
+                        title="View Details"
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="h-6 w-6"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                          />
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M2.458 12C3.732 7.943 7.523 5 12 5s8.268 2.943 9.542 7c-1.274 4.057-5.065 7-9.542 7s-8.268-2.943-9.542-7z"
+                          />
+                        </svg>
+                      </a>
                     </div>
                   </div>
                 </CardContent>

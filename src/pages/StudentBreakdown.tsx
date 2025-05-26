@@ -23,24 +23,44 @@ import {
 } from "@/components/ui/drawer";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  Tooltip,
+  CartesianGrid,
+  ResponsiveContainer,
+  Legend,
+} from "recharts";
+import { useAuth } from "@/supabase/custom-hooks/useAuth";
+
 
 export default function StudentBreakdown() {
-  const { userId } = useParams();
+  const { userId, assessmentId } = useParams();
+  const navigate = useNavigate();
   const { quizResults, isLoading } = useQuizResult(userId, true);
+  const { user, loading } = useAuth();
+  
   const [selectedAssessment, setSelectedAssessment] = useState(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
   if (isLoading) return <LoadingSpinner />;
   if (!quizResults.length) return <p>No quiz results found.</p>;
 
-  const student = quizResults[0]?.user;
+  const filteredResults = quizResults.filter((result) => {
+    return (result.assessment_number === assessmentId)
+  });
 
+  const student = filteredResults[0]?.user;
+  const studentFullName = `${student?.first_name} ${student?.last_name}`;
+  
   const getSelectedAssessment = () => {
-    return quizResults.find((a) => a.id === selectedAssessment);
+    return filteredResults.find((a) => a.id === selectedAssessment);
   };
-
+  
   const calculatePercentage = (score, total) => {
     return (((score / total) * 50) + 50).toFixed(1);
   };
@@ -50,24 +70,62 @@ export default function StudentBreakdown() {
     return `${first?.charAt(0) || ""}${last?.charAt(0) || ""}`.toUpperCase();
   };
 
+  const lineChartData = filteredResults.map((result) => ({
+    name: `Attempt ${result.retake_number}`,
+    score: result.score,
+    total: result.answers.length,
+    Percentage: parseFloat(calculatePercentage(result.score, result.answers.length)),
+  }));
+
   return (
     <div className="container px-4 sm:px-6 py-6 space-y-6">
       <Breadcrumb>
         <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink href="/admin/scores">All Students</BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator>
-            <ChevronRight className="h-4 w-4" />
-          </BreadcrumbSeparator>
-          <BreadcrumbItem>
-            <BreadcrumbPage>
-              {student?.first_name} {student?.last_name}
-            </BreadcrumbPage>
-          </BreadcrumbItem>
+          {user ? (
+            // ✅ Logged-in breadcrumb: Assessment > Student
+            <>
+              <BreadcrumbItem>
+                <BreadcrumbLink
+                  href={`/admin/quiz-scores/${assessmentId}`}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    navigate(`/admin/quiz-scores/${assessmentId}`);
+                  }}
+                >
+                  {assessmentId}
+                </BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator>
+                <ChevronRight className="h-4 w-4" />
+              </BreadcrumbSeparator>
+              <BreadcrumbItem>
+                <BreadcrumbPage>{studentFullName}</BreadcrumbPage>
+              </BreadcrumbItem>
+            </>
+          ) : (
+            // ❌ No logged-in user: Student Name > Assessment
+            <>
+              <BreadcrumbItem>
+                <BreadcrumbLink
+                  href={`/student-assessment/${userId}`}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    navigate(`/student-assessment/${userId}`);
+                  }}
+                >
+                  {studentFullName}
+                </BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator>
+                <ChevronRight className="h-4 w-4" />
+              </BreadcrumbSeparator>
+              <BreadcrumbItem>
+                <BreadcrumbPage>{assessmentId}</BreadcrumbPage>
+              </BreadcrumbItem>
+            </>
+          )}
         </BreadcrumbList>
       </Breadcrumb>
-
       <div className="space-y-6">
         <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4">
           <Avatar className="h-20 w-20">
@@ -90,23 +148,42 @@ export default function StudentBreakdown() {
               </Badge>
             </div>
           </div>
+          <div className="w-full h-64">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={lineChartData} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="name" />
+                <YAxis domain={[0, 100]} tickFormatter={(val) => `${val}%`} />
+                <Tooltip formatter={(value) => `${value}%`} />
+                <Legend />
+                <Line type="monotone" dataKey="Percentage" stroke="#3b82f6" strokeWidth={3} dot />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {quizResults.map((assessment) => (
+        {filteredResults.map((assessment) => (
             <Card
               key={assessment.id}
-              className="cursor-pointer hover:border-primary transition-colors"
               onClick={() => {
                 setSelectedAssessment(assessment.id);
                 setIsDrawerOpen(true);
               }}
+              className="cursor-pointer"
             >
-              <CardHeader>
-                <CardTitle className="text-lg sm:text-xl">
-                  {assessment.assessment_number}
-                </CardTitle>
-              </CardHeader>
+            <CardHeader className="flex flex-row items-start justify-between">
+              <CardTitle className="text-lg sm:text-xl">
+                Attempt {assessment.retake_number}
+              </CardTitle>
+              <div className="text-sm text-muted-foreground">
+                {new Date(assessment.created_at).toLocaleDateString(undefined, {
+                  year: "numeric",
+                  month: "short",
+                  day: "numeric",
+                })}
+              </div>
+            </CardHeader>
               <CardContent>
                 <div className="space-y-2">
                   <div className="flex items-end justify-between">
@@ -142,9 +219,9 @@ export default function StudentBreakdown() {
       <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
         <DrawerContent>
           <DrawerHeader className="border-b">
-            <DrawerTitle className="text-lg sm:text-xl">
-              {getSelectedAssessment()?.assessment_number} Results
-            </DrawerTitle>
+          <DrawerTitle className="text-lg sm:text-xl">
+            Attempt {getSelectedAssessment()?.retake_number} Results
+          </DrawerTitle>
             <DrawerDescription>
               Score: {getSelectedAssessment()?.score}/
               {getSelectedAssessment()?.answers.length} (
@@ -203,3 +280,11 @@ export default function StudentBreakdown() {
     </div>
   );
 }
+
+
+
+
+
+
+
+

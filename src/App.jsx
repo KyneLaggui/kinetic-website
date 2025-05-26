@@ -13,12 +13,15 @@ function App() {
           path="/student-assessment/:userId"
           element={<Pages.StudentAssessment />}
         />
+
+        <Route
+          path="student-breakdown/:assessmentId/:userId"
+          element={<Pages.StudentBreakdown />}
+        />
+        <Route path="scores" element={<AuthGuard><Pages.Admin /></AuthGuard>} />
+
         <Route path="admin">
-          <Route path="scores" element={<AuthGuard><Pages.Admin /></AuthGuard>} />
-          <Route
-            path="student-breakdown/:userId"
-            element={<AuthGuard><Pages.StudentBreakdown /></AuthGuard>}
-          />
+          <Route path="quiz-scores/:assessmentId" element={<AuthGuard><Pages.QuizScores /></AuthGuard>} />
           <Route path="quiz-system" element={<AuthGuard><Pages.QuizSystem /></AuthGuard>} />
           <Route path="quiz-detail/:assessmentId" element={<AuthGuard><Pages.QuizDetail /></AuthGuard>} />
         </Route>

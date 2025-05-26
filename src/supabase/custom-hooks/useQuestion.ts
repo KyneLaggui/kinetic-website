@@ -94,6 +94,23 @@ const useQuestion = (assessmentId) => {
     }
   };
 
+  const fetchQuestionsReturn = async (assessmentId) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const { data, error } = await supabase.from('question').select('*').eq('assessment', assessmentId); 
+      if (error) throw error;
+      setQuestions(data);
+      return data; // ✅ RETURN the fetched data
+    } catch (err) {
+      setError(err.message);
+      return [];  // ✅ Return empty array on failure
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+
   return {
     questions,
     loading,
@@ -101,6 +118,7 @@ const useQuestion = (assessmentId) => {
     createQuestion,
     updateQuestion,
     deleteQuestion,
+    fetchQuestionsReturn,
   };
 };
 
