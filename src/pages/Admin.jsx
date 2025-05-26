@@ -6,20 +6,18 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
+  CardFooter,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import useQuiz from "../supabase/custom-hooks/useQuiz";
 import useQuizResult from "@/supabase/custom-hooks/useQuizResult";
+import { BarChart, Bar, CartesianGrid, LabelList, XAxis, Cell } from "recharts";
 import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  Cell,
-} from "recharts";
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+} from "@/components/ui/chart";
+import { ArrowRight, TrendingUp } from "lucide-react";
 
 const getHighestRetakeResults = (results) => {
   const resultMap = new Map();
@@ -68,15 +66,13 @@ const getScoreDistribution = (results) => {
   return chartData;
 };
 
-
-
 const Admin = () => {
   const navigate = useNavigate();
   const { quizzes } = useQuiz();
   const { quizResults, fetchByAssessmentNumber } = useQuizResult();
-
   const [scoreDistributions, setScoreDistributions] = useState({});
   const [responseCounts, setResponseCounts] = useState({});
+  const barColors = ["#9932e1", "#db2777", "#cd298c", "#d32883"];
 
   useEffect(() => {
     const loadResponseCounts = async () => {
@@ -86,7 +82,10 @@ const Admin = () => {
           const responses = await fetchByAssessmentNumber(quiz.assessment);
           counts[quiz.assessment] = responses.length;
         } catch (err) {
-          console.error(`Failed to fetch responses for ${quiz.assessment}`, err);
+          console.error(
+            `Failed to fetch responses for ${quiz.assessment}`,
+            err
+          );
           counts[quiz.assessment] = 0;
         }
       }
@@ -105,33 +104,48 @@ const Admin = () => {
   useEffect(() => {
     const loadScoreDistributions = async () => {
       const allResults = [];
-  
+
       for (const quiz of quizzes) {
         try {
           const responses = await fetchByAssessmentNumber(quiz.assessment);
           allResults.push(...responses);
         } catch (err) {
-          console.error(`Failed to fetch responses for ${quiz.assessment}`, err);
+          console.error(
+            `Failed to fetch responses for ${quiz.assessment}`,
+            err
+          );
         }
       }
-  
+
       const highestRetakes = getHighestRetakeResults(allResults);
       const distributions = getScoreDistribution(highestRetakes);
-  
+
       setScoreDistributions(distributions);
     };
-  
+
     if (quizzes.length > 0) {
       loadScoreDistributions();
     }
   }, [quizzes]);
 
   return (
-      <div className="container py-6">
-      <h2 className="text-2xl font-bold tracking-tight mb-4">Scores</h2>
+    <div className="container py-6 space-y-6">
+      <div className="flex flex-col gap-1">
+        <h2 className="text-2xl font-bold tracking-tight">Scores</h2>
+        <p className="text-muted-foreground">
+          View detailed analytics and score breakdowns for each student.
+        </p>
+      </div>
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {quizzes.map((quiz) => {
           const chartData = scoreDistributions[quiz.assessment];
+
+          // ✅ Safely generate coloredChartData inside the map
+          const coloredChartData =
+            chartData?.map((entry, index) => ({
+              ...entry,
+              fill: barColors[index % barColors.length],
+            })) || [];
 
           return (
             <Card
@@ -153,42 +167,47 @@ const Admin = () => {
                 </div>
               </CardHeader>
               <CardContent>
-                {chartData && chartData.length > 0 && (
+                {coloredChartData.length > 0 && (
                   <>
                     <h3 className="text-lg font-semibold mb-2">
                       Latest Assessment Results
                     </h3>
-                    <ResponsiveContainer width="100%" height={250}>
-                      <BarChart data={chartData}>
-                        <CartesianGrid strokeDasharray="3 3" />
+                    <ChartContainer
+                      config={{ count: { label: "Count", color: "#9932e1" } }}
+                    >
+                      <BarChart data={coloredChartData} margin={{ top: 40 }}>
+                        <CartesianGrid vertical={false} />
                         <XAxis
                           dataKey="score"
-                          label={{ value: "Score", position: "insideBottom", offset: -5 }}
+                          tickLine={false}
+                          tickMargin={10}
+                          axisLine={false}
                         />
-                        <YAxis
-                          label={{ value: "Count", angle: -90, position: "insideLeft" }}
+                        <ChartTooltip
+                          cursor={false}
+                          content={<ChartTooltipContent hideLabel />}
                         />
-                        <Tooltip />
-                        <Bar dataKey="count">
-                          {chartData.map((entry, index) => {
-                            const colors = [
-                              "#C084FC", // purple-400
-                              "#E879F9", // pink-400
-                              "#A855F7", // purple-500
-                              "#EC4899", // pink-500
-                              "#9333EA", // purple-600
-                              "#DB2777", // pink-600
-                            ];
-                            return (
-                              <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
-                            );
-                          })}
+                        <Bar dataKey="count" radius={6}>
+                          {coloredChartData.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={entry.fill} />
+                          ))}
+                          <LabelList
+                            position="top"
+                            offset={12}
+                            className="fill-foreground"
+                            fontSize={12}
+                          />
                         </Bar>
                       </BarChart>
-                    </ResponsiveContainer>
+                    </ChartContainer>
                   </>
                 )}
               </CardContent>
+              <CardFooter className="mt-2">
+                <div className="text-sm text-muted-foreground hover:text-primary transition cursor-pointer">
+                  Click to see a detailed breakdown of all student scores{" "}
+                </div>
+              </CardFooter>
             </Card>
           );
         })}
