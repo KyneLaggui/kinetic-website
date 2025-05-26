@@ -96,7 +96,7 @@ export function Register() {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="outline">Register</Button>
+        <Button>Register Student</Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
@@ -173,7 +173,7 @@ export function Register() {
             </FormField>
 
             <DialogFooter>
-              <Button type="submit">Register</Button>
+              <Button type="submit">Register Student</Button>
             </DialogFooter>
           </form>
         </ScrollArea>

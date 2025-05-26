@@ -33,8 +33,8 @@ import { useLocation } from "react-router-dom";
 const navItems = [
   {
     name: "Scores",
-    path: "/scores",
-    activePaths: ["/scores", "/admin/quiz-scores/", "/student-breakdown/"],
+    path: "/admin/scores",
+    activePaths: ["/admin/scores", "/admin/quiz-scores/", "/student-breakdown/"],
   },
   {
     name: "Quizzes",
