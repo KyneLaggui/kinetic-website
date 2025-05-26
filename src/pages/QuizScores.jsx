@@ -17,8 +17,6 @@ export default function QuizScores() {
       try {
         const rawResponses = await fetchByAssessmentNumber(assessmentId);
 
-        console.log(rawResponses);
-
         const enhancedResponses = await Promise.all(
           rawResponses.map(async (res) => {
             const user = await fetchUserById(res.user_id);
