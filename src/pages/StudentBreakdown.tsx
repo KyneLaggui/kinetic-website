@@ -37,32 +37,36 @@ import {
 } from "recharts";
 import { useAuth } from "@/supabase/custom-hooks/useAuth";
 
-
 export default function StudentBreakdown() {
   const { userId, assessmentId } = useParams();
   const navigate = useNavigate();
   const { quizResults, isLoading } = useQuizResult(userId, true);
   const { user, loading } = useAuth();
-  
+
   const [selectedAssessment, setSelectedAssessment] = useState(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
   if (isLoading) return <LoadingSpinner />;
-  if (!quizResults.length) return <p>No quiz results found.</p>;
+  if (!quizResults.length)
+    return (
+      <p className="w-full h-screen flex items-center justify-center">
+        No quiz results found.
+      </p>
+    );
 
   const filteredResults = quizResults.filter((result) => {
-    return (result.assessment_number === assessmentId)
+    return result.assessment_number === assessmentId;
   });
 
   const student = filteredResults[0]?.user;
   const studentFullName = `${student?.first_name} ${student?.last_name}`;
-  
+
   const getSelectedAssessment = () => {
     return filteredResults.find((a) => a.id === selectedAssessment);
   };
-  
+
   const calculatePercentage = (score, total) => {
-    return (((score / total) * 50) + 50).toFixed(1);
+    return ((score / total) * 50 + 50).toFixed(1);
   };
 
   const getInitials = (name) => {
@@ -74,7 +78,9 @@ export default function StudentBreakdown() {
     name: `Attempt ${result.retake_number}`,
     score: result.score,
     total: result.answers.length,
-    Percentage: parseFloat(calculatePercentage(result.score, result.answers.length)),
+    Percentage: parseFloat(
+      calculatePercentage(result.score, result.answers.length)
+    ),
   }));
 
   return (
@@ -150,20 +156,29 @@ export default function StudentBreakdown() {
           </div>
           <div className="w-full h-64">
             <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={lineChartData} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
+              <LineChart
+                data={lineChartData}
+                margin={{ top: 20, right: 30, left: 0, bottom: 5 }}
+              >
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="name" />
                 <YAxis domain={[0, 100]} tickFormatter={(val) => `${val}%`} />
                 <Tooltip formatter={(value) => `${value}%`} />
                 <Legend />
-                <Line type="monotone" dataKey="Percentage" stroke="#3b82f6" strokeWidth={3} dot />
+                <Line
+                  type="monotone"
+                  dataKey="Percentage"
+                  stroke="#3b82f6"
+                  strokeWidth={3}
+                  dot
+                />
               </LineChart>
             </ResponsiveContainer>
           </div>
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {filteredResults.map((assessment) => (
+          {filteredResults.map((assessment) => (
             <Card
               key={assessment.id}
               onClick={() => {
@@ -172,18 +187,21 @@ export default function StudentBreakdown() {
               }}
               className="cursor-pointer"
             >
-            <CardHeader className="flex flex-row items-start justify-between">
-              <CardTitle className="text-lg sm:text-xl">
-                Attempt {assessment.retake_number}
-              </CardTitle>
-              <div className="text-sm text-muted-foreground">
-                {new Date(assessment.created_at).toLocaleDateString(undefined, {
-                  year: "numeric",
-                  month: "short",
-                  day: "numeric",
-                })}
-              </div>
-            </CardHeader>
+              <CardHeader className="flex flex-row items-start justify-between">
+                <CardTitle className="text-lg sm:text-xl">
+                  Attempt {assessment.retake_number}
+                </CardTitle>
+                <div className="text-sm text-muted-foreground">
+                  {new Date(assessment.created_at).toLocaleDateString(
+                    undefined,
+                    {
+                      year: "numeric",
+                      month: "short",
+                      day: "numeric",
+                    }
+                  )}
+                </div>
+              </CardHeader>
               <CardContent>
                 <div className="space-y-2">
                   <div className="flex items-end justify-between">
@@ -219,9 +237,9 @@ export default function StudentBreakdown() {
       <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
         <DrawerContent>
           <DrawerHeader className="border-b">
-          <DrawerTitle className="text-lg sm:text-xl">
-            Attempt {getSelectedAssessment()?.retake_number} Results
-          </DrawerTitle>
+            <DrawerTitle className="text-lg sm:text-xl">
+              Attempt {getSelectedAssessment()?.retake_number} Results
+            </DrawerTitle>
             <DrawerDescription>
               Score: {getSelectedAssessment()?.score}/
               {getSelectedAssessment()?.answers.length} (
@@ -280,11 +298,3 @@ export default function StudentBreakdown() {
     </div>
   );
 }
-
-
-
-
-
-
-
-
