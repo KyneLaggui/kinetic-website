@@ -94,7 +94,7 @@ export default function QuizScores() {
       </Breadcrumb>
 
       {/* Title */}
-      <header className="mt-4 mb-6">
+      <header className="mt-4 mb-8">
         <div className="space-y-2 text-left">
           <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-nowrap">
             {quiz?.title || "Quiz Title"}
