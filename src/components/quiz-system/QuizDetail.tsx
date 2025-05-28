@@ -49,8 +49,10 @@ export default function QuizDetail() {
       newQuestionData.title,
       newQuestionData.choices,
       correctAnswer,
-      assessmentId
+      assessmentId,
+      quizzes[0].id
     );
+
   };
 
   const handleEditQuestion = async (updatedQuestion: Question) => {
