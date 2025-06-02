@@ -57,9 +57,9 @@ const useQuestion = (assessmentId) => {
   }, []);
 
   // Add a new quiz
-  const createQuestion = async (description, choices, answer, assessmentId) => {
+  const createQuestion = async (description, choices, answer, assessmentId, quizId) => {
     try {
-      const { error } = await supabase.from('question').insert([{ description, choices, "assessment": assessmentId }]);
+      const { error } = await supabase.from('question').insert([{ description, choices, "assessment": assessmentId, quiz_id: quizId }]);
       if (error) throw error;
       showNotification('success', 'Question added successfuly!')
       return true

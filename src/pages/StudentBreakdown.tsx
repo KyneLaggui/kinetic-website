@@ -304,9 +304,9 @@ export default function StudentBreakdown() {
             <div className="p-4 sm:p-6 space-y-6">
               {getSelectedAssessment()?.answers.map((question, qIndex) => (
                 <div key={qIndex} className="space-y-4">
-                  <h3 className="text-sm sm:text-base font-medium flex items-start gap-2">
+                  <h3 className="text-sm sm:text-base font-medium flex items-start gap-2 flex-wrap">
                     <span
-                      className={`w-6 h-6 flex items-center justify-center rounded-full text-white ${
+                      className={`w-6 h-6 flex items-center justify-center rounded-full text-white text-[0.75rem] sm:text-[1rem] leading-none flex-none ${
                         question.selected_answer === question.correct_answer
                           ? "bg-green-500"
                           : "bg-red-500"
@@ -314,8 +314,9 @@ export default function StudentBreakdown() {
                     >
                       {qIndex + 1}
                     </span>
-                    {question.question}
+                    <span className="flex-1 min-w-0">{question.question}</span>
                   </h3>
+
                   <div className="grid gap-2">
                     {question.choices.map((choice, cIndex) => (
                       <div
